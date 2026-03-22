@@ -1,43 +1,34 @@
 # LovInIdeas API Documentation
 
-> 🎁 **API Documentation for LovInIdeas Gift Ideas Platform**
+API documentation for LovInIdeas gift ideas platform. Users share and discover gift recommendations for various occasions and recipients.
 
-This repository contains the complete API documentation for LovInIdeas, a platform where users share and discover creative gift ideas for colleagues, partners, friends, and family members.
+## Quick Links
 
-## 📖 About LovInIdeas
+- [Live Documentation](https://your-username.github.io/lovinideas-api-docs/) - Complete API reference
+- [Quick Start Guide](https://your-username.github.io/lovinideas-api-docs/examples/quick-start) - Integration guide
+- [Authentication](https://your-username.github.io/lovinideas-api-docs/authentication/registration) - User registration and JWT
 
-LovInIdeas is like Habr, but for gift ideas! Users post creative gift suggestions based on real experience. When you want to make someone happy but need inspiration, LovInIdeas provides authentic recommendations from real people who have been in similar situations.
+## API Features
 
-## 🚀 Quick Links
-
-- **📚 [Live Documentation](https://your-username.github.io/lovinideas-api-docs/)** - Complete API reference
-- **🔧 [Quick Start Guide](https://your-username.github.io/lovinideas-api-docs/examples/quick-start)** - Get started in 5 minutes
-- **💡 [Integration Examples](https://your-username.github.io/lovinideas-api-docs/examples/integration-guide)** - Real-world implementation patterns
-- **🔐 [Authentication](https://your-username.github.io/lovinideas-api-docs/authentication/registration)** - User registration and JWT tokens
-
-## 🛠 API Features
-
-### Core Functionality
-- **🔐 User Authentication** - Registration, login, JWT token management
-- **💡 Gift Ideas Management** - Create, read, update, search gift ideas
-- **🔍 Advanced Search** - Full-text search with filters and suggestions
-- **💬 Social Features** - Comments, likes, ratings, and user interactions
-- **👤 User Profiles** - Profile management, followers, and preferences
-- **📊 Analytics** - Engagement metrics and trending content
+- User Authentication - Registration, login, JWT management
+- Gift Ideas Management - CRUD operations, search
+- Social Features - Comments, likes, ratings
+- User Profiles - Profile management, followers
+- Analytics - Engagement metrics, trending content
 
 ### Key Endpoints
 ```
-POST   /auth/register          # Register new user
-POST   /auth/login             # User login
-GET    /ideas                  # Get gift ideas
-POST   /ideas                  # Create gift idea
+POST   /auth/register          # Register user
+POST   /auth/login             # User login  
+GET    /ideas                  # Get ideas
+POST   /ideas                  # Create idea
 GET    /ideas/search           # Search ideas
-POST   /ideas/{id}/like        # Like an idea
+POST   /ideas/{id}/like        # Like idea
 POST   /ideas/{id}/comments    # Add comment
-GET    /users/{id}/profile     # Get user profile
+GET    /users/{id}/profile     # User profile
 ```
 
-## 🏗 Documentation Structure
+## Documentation Structure
 
 ```
 docs/
@@ -65,53 +56,27 @@ docs/
     └── integration-guide.md
 ```
 
-## 🚀 Getting Started
+## Local Development
 
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-
-### Local Development
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/lovinideas-api-docs.git
-   cd lovinideas-api-docs
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Start development server**
-   ```bash
-   npm run docs:dev
-   ```
-
-4. **Open in browser**
-   ```
-   http://localhost:5173
-   ```
-
-### Build for Production
+**Prerequisites:** Node.js 18+, npm
 
 ```bash
-# Build static site
-npm run docs:build
-
-# Preview production build
-npm run docs:preview
+git clone https://github.com/your-username/lovinideas-api-docs.git
+cd lovinideas-api-docs
+npm install
+npm run docs:dev
 ```
 
-## 🔧 Built With
+**Build:** `npm run docs:build`
 
-- **[VitePress](https://vitepress.dev/)** - Static site generator
-- **[Vue 3](https://vuejs.org/)** - Frontend framework
-- **[GitHub Actions](https://github.com/features/actions)** - CI/CD pipeline
-- **[GitHub Pages](https://pages.github.com/)** - Hosting
+## Built With
 
-## 📝 API Examples
+- [VitePress](https://vitepress.dev/) - Static site generator
+- [Vue 3](https://vuejs.org/) - Frontend framework  
+- [GitHub Actions](https://github.com/features/actions) - CI/CD
+- [GitHub Pages](https://pages.github.com/) - Hosting
+
+## API Examples
 
 ### Register User
 ```bash
@@ -146,64 +111,27 @@ curl -X POST https://api.lovinideas.com/v1/ideas \
   }'
 ```
 
-## 🤝 Contributing
+## Contributing
 
-We welcome contributions to improve the documentation!
+1. Fork repository
+2. Create feature branch: `git checkout -b feature/docs-improvement`
+3. Make changes and test locally: `npm run docs:dev`
+4. Commit and push: `git push origin feature/docs-improvement`
+5. Create Pull Request
 
-### How to Contribute
+**Guidelines:** Clear language, practical examples, test code snippets.
 
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/improve-auth-docs
-   ```
-3. **Make your changes**
-4. **Test locally**
-   ```bash
-   npm run docs:dev
-   ```
-5. **Commit and push**
-   ```bash
-   git commit -m "Improve authentication documentation"
-   git push origin feature/improve-auth-docs
-   ```
-6. **Create a Pull Request**
-
-### Documentation Guidelines
-
-- Use clear, concise language
-- Include practical examples
-- Test all code snippets
-- Follow existing formatting patterns
-- Add screenshots for UI changes
-
-## 📊 API Status
+## API Status
 
 - **Base URL**: `https://api.lovinideas.com/v1`
-- **Status**: Active Development
 - **Version**: v1.0
-- **Rate Limits**: 1000 req/hour (authenticated), 100 req/hour (public)
-- **Uptime**: 99.9%
+- **Rate Limits**: 1000 req/hour (auth), 100 req/hour (public)
 
-## 📞 Support
+## Support
 
-- **📧 Email**: api-support@lovinideas.com
-- **💬 Discord**: [LovInIdeas Community](https://discord.gg/lovinideas)
-- **📱 Twitter**: [@LovInIdeasAPI](https://twitter.com/lovinideasapi)
-- **🐛 Issues**: [GitHub Issues](https://github.com/your-username/lovinideas-api-docs/issues)
+- **Email**: api-support@lovinideas.com
+- **Issues**: [GitHub Issues](https://github.com/your-username/lovinideas-api-docs/issues)
 
-## 📄 License
+## License
 
-This documentation is licensed under the [MIT License](LICENSE).
-
-## 🙏 Acknowledgments
-
-- **VitePress Team** - Amazing documentation framework
-- **LovInIdeas Community** - Feedback and suggestions
-- **Contributors** - Everyone who helped improve this documentation
-
----
-
-**Made with ❤️ for the LovInIdeas community**
-
-> 💡 **Tip**: Bookmark the [Quick Start Guide](https://your-username.github.io/lovinideas-api-docs/examples/quick-start) to get up and running quickly!
+MIT License

@@ -22,34 +22,34 @@ export default defineConfig({
       {
         text: 'Authentication',
         items: [
-          { text: 'User Registration', link: '/authentication/registration' },
-          { text: 'User Login', link: '/authentication/login' },
+          { text: 'Registration', link: '/authentication/registration' },
+          { text: 'Login', link: '/authentication/login' },
           { text: 'JWT Tokens', link: '/authentication/tokens' }
         ]
       },
       {
-        text: 'Ideas Management',
+        text: 'Ideas',
         items: [
-          { text: 'Create Idea', link: '/ideas/create-idea' },
-          { text: 'Get Ideas', link: '/ideas/get-ideas' },
-          { text: 'Search Ideas', link: '/ideas/search-ideas' },
-          { text: 'Update Idea', link: '/ideas/update-idea' }
+          { text: 'Create', link: '/ideas/create-idea' },
+          { text: 'Get', link: '/ideas/get-ideas' },
+          { text: 'Search', link: '/ideas/search-ideas' },
+          { text: 'Update', link: '/ideas/update-idea' }
         ]
       },
       {
-        text: 'Social Features',
+        text: 'Social',
         items: [
           { text: 'Add Comment', link: '/comments/add-comment' },
           { text: 'Get Comments', link: '/comments/get-comments' },
-          { text: 'Like Idea', link: '/ratings/like-idea' },
-          { text: 'Get Ratings', link: '/ratings/get-ratings' }
+          { text: 'Like', link: '/ratings/like-idea' },
+          { text: 'Ratings', link: '/ratings/get-ratings' }
         ]
       },
       {
-        text: 'User Management',
+        text: 'Users',
         items: [
-          { text: 'User Profile', link: '/users/profile' },
-          { text: 'User Settings', link: '/users/settings' }
+          { text: 'Profile', link: '/users/profile' },
+          { text: 'Settings', link: '/users/settings' }
         ]
       }
     ],

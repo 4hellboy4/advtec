@@ -1,6 +1,6 @@
 # Create Gift Idea
 
-Create a new gift idea post on the LovInIdeas platform.
+Create new gift idea.
 
 ## Endpoint
 
@@ -183,22 +183,20 @@ Authorization: Bearer <token>
 
 ## Content Guidelines
 
-### What Makes a Great Gift Idea
+### Content Guidelines
 
-1. **Personal Experience**: Share your actual experience with the gift
-2. **Specific Details**: Include brand names, where to buy, approximate prices
-3. **Context**: Explain why this gift worked for the specific occasion/person
-4. **Quality Photos**: Include clear, high-quality images
-5. **Helpful Links**: Provide purchase links when possible
+**Required Elements:**
+- Personal experience with the gift
+- Specific details (brands, prices, purchase locations)
+- Context for occasion/recipient
+- High-quality images
+- Purchase links
 
-### Content Moderation
-
-All ideas are subject to moderation. Ideas may be rejected for:
-
-- Inappropriate content
-- Spam or promotional content
-- Copyright violations
-- Incomplete or low-quality descriptions
+**Moderation Rules:**
+- No inappropriate content
+- No spam/promotional content  
+- No copyright violations
+- Complete descriptions required
 
 ## Error Codes
 
@@ -231,9 +229,7 @@ curl -X POST https://api.lovinideas.com/v1/ideas \
 
 ## Next Steps
 
-After creating an idea:
-
-1. **Share Your Idea**: Get the shareable URL from the response
-2. **Monitor Engagement**: Check likes and comments on your idea
-3. **Update if Needed**: Use [Update Idea](/ideas/update-idea) to make changes
-4. **Create More**: Share more gift experiences to help the community!
+1. Share idea URL from response
+2. Monitor engagement metrics
+3. [Update idea](/ideas/update-idea) if needed
+4. Create additional ideas
