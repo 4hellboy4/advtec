@@ -16,7 +16,7 @@ All endpoints require JWT authentication:
 Authorization: Bearer <jwt-token>
 ```
 
-Get tokens via [registration](/authentication/registration) and [login](/authentication/login) endpoints.
+Get tokens via [authentication](/authentication) endpoints.
 
 ## Rate Limits
 
@@ -60,7 +60,7 @@ Get tokens via [registration](/authentication/registration) and [login](/authent
 
 ## Quick Start
 
-1. [Register user](/authentication/registration)
-2. [Login for JWT token](/authentication/login)  
-3. [Create gift idea](/ideas/create-idea)
-4. [Search ideas](/ideas/search-ideas)
+1. [Register user](/authentication)
+2. [Login for JWT token](/authentication)  
+3. [Create gift idea](/ideas)
+4. [Search ideas](/ideas)
