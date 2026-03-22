@@ -8,7 +8,7 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'API Reference', link: '/authentication/registration' },
+      { text: 'API Reference', link: '/authentication' },
       { text: 'Examples', link: '/examples/quick-start' }
     ],
 
@@ -21,36 +21,11 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Authentication',
+        text: 'API Reference',
         items: [
-          { text: 'Registration', link: '/authentication/registration' },
-          { text: 'Login', link: '/authentication/login' },
-          { text: 'JWT Tokens', link: '/authentication/tokens' }
-        ]
-      },
-      {
-        text: 'Ideas',
-        items: [
-          { text: 'Create', link: '/ideas/create-idea' },
-          { text: 'Get', link: '/ideas/get-ideas' },
-          { text: 'Search', link: '/ideas/search-ideas' },
-          { text: 'Update', link: '/ideas/update-idea' }
-        ]
-      },
-      {
-        text: 'Social',
-        items: [
-          { text: 'Add Comment', link: '/comments/add-comment' },
-          { text: 'Get Comments', link: '/comments/get-comments' },
-          { text: 'Like', link: '/ratings/like-idea' },
-          { text: 'Ratings', link: '/ratings/get-ratings' }
-        ]
-      },
-      {
-        text: 'Users',
-        items: [
-          { text: 'Profile', link: '/users/profile' },
-          { text: 'Settings', link: '/users/settings' }
+          { text: 'Authentication', link: '/authentication' },
+          { text: 'Gift Ideas', link: '/ideas' },
+          { text: 'Comments', link: '/comments' }
         ]
       }
     ],
