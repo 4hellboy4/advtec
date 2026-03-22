@@ -3,6 +3,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'LovInIdeas API',
   description: 'API Documentation for LovInIdeas Gift Ideas Platform',
+  base: '/advtec/',
   
   themeConfig: {
     nav: [
