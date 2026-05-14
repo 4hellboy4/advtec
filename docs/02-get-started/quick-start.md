@@ -1,34 +1,36 @@
 # Quick Start
 
-Get started with LovInIdeas API in 4 steps.
+Five minutes from zero to a working API call. We'll register an account, log in, post an idea, and search for it.
 
-## 1. Register User
+## 1. Register an account
 
 ```bash
 curl -X POST https://api.lovinideas.com/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "user@example.com",
+    "email": "you@example.com",
     "password": "SecurePass123!",
     "username": "developer",
-    "full_name": "Developer"
+    "full_name": "Your Name"
   }'
 ```
 
-## 2. Login for Token
+The response includes a `token` — you can either save it now, or log in again later to get a fresh one.
+
+## 2. Log in for a token
 
 ```bash
 curl -X POST https://api.lovinideas.com/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "user@example.com", 
+    "email": "you@example.com",
     "password": "SecurePass123!"
   }'
 ```
 
-Save the `token` from response.
+Copy the `token` from the response — you'll send it with every authenticated request.
 
-## 3. Create Gift Idea
+## 3. Post an idea
 
 ```bash
 curl -X POST https://api.lovinideas.com/v1/ideas \
@@ -36,7 +38,7 @@ curl -X POST https://api.lovinideas.com/v1/ideas \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
     "title": "Bluetooth Speaker",
-    "description": "Great sound quality, perfect for office use.",
+    "description": "Great sound quality, perfect for an office desk.",
     "category": "electronics",
     "occasion": "birthday",
     "price_range": "50_100",
@@ -45,13 +47,17 @@ curl -X POST https://api.lovinideas.com/v1/ideas \
   }'
 ```
 
-## 4. Search Ideas
+## 4. Search
 
 ```bash
-curl "https://api.lovinideas.com/v1/ideas/search?q=anniversary&price_range=25_50"
+curl "https://api.lovinideas.com/v1/ideas/search?q=bluetooth&price_range=50_100"
 ```
 
-## JavaScript Example
+You should see the idea you just posted in the results.
+
+## A minimal JavaScript client
+
+If `curl` isn't your thing, here's the same flow as a small JS class:
 
 ```javascript
 class LovInIdeasAPI {
@@ -71,12 +77,12 @@ class LovInIdeasAPI {
     return response.json();
   }
 
-  async getIdeas(filters = {}) {
+  getIdeas(filters = {}) {
     const params = new URLSearchParams(filters);
     return this.request(`/ideas?${params}`);
   }
 
-  async createIdea(data) {
+  createIdea(data) {
     return this.request('/ideas', {
       method: 'POST',
       body: JSON.stringify(data)
@@ -84,29 +90,12 @@ class LovInIdeasAPI {
   }
 }
 
-// Usage
 const api = new LovInIdeasAPI('your_token');
 const ideas = await api.getIdeas({ category: 'electronics' });
 ```
 
-## Error Handling
+## What's next
 
-```javascript
-try {
-  const result = await api.createIdea(data);
-  if (!result.success) {
-    console.error('API Error:', result.error.message);
-  }
-} catch (error) {
-  console.error('Network Error:', error);
-}
-```
-
-## Rate Limits
-
-- Authenticated: 1000 req/hour
-- Unauthenticated: 100 req/hour
-
-## Support
-
-Contact: api-support@lovinideas.com
+- [Your first request, explained line by line](/02-get-started/first-request)
+- [How authentication really works](/02-get-started/authentication-setup)
+- [Build something real](/03-build/manage-ideas)

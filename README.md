@@ -1,62 +1,81 @@
 # LovInIdeas API Documentation
 
-API documentation for LovInIdeas gift ideas platform. Users share and discover gift recommendations for various occasions and recipients.
+Documentation for the LovInIdeas gift ideas API — a platform where people share recommendations for birthdays, anniversaries, weddings, and everything in between.
 
-## Quick Links
+Built with [VitePress](https://vitepress.dev/), hosted on GitHub Pages.
 
-- [Live Documentation](https://your-username.github.io/lovinideas-api-docs/) - Complete API reference
-- [Quick Start Guide](https://your-username.github.io/lovinideas-api-docs/examples/quick-start) - Integration guide
-- [Authentication](https://your-username.github.io/lovinideas-api-docs/authentication/registration) - User registration and JWT
+## Live site
 
-## API Features
+- [Documentation](https://your-username.github.io/advtec/) — the rendered site.
+- [Quick Start](https://your-username.github.io/advtec/02-get-started/quick-start) — first call in five minutes.
 
-- User Authentication - Registration, login, JWT management
-- Gift Ideas Management - CRUD operations, search
-- Social Features - Comments, likes, ratings
-- User Profiles - Profile management, followers
-- Analytics - Engagement metrics, trending content
+## Why this structure
 
-### Key Endpoints
-```
-POST   /auth/register          # Register user
-POST   /auth/login             # User login  
-GET    /ideas                  # Get ideas
-POST   /ideas                  # Create idea
-GET    /ideas/search           # Search ideas
-POST   /ideas/{id}/like        # Like idea
-POST   /ideas/{id}/comments    # Add comment
-GET    /users/{id}/profile     # User profile
-```
+The documentation is organized around a **Customer Journey Map (CJM)** — the path a developer actually walks when they meet a new API, rather than a flat list of endpoints.
 
-## Documentation Structure
+That journey has six recognisable stages, and each one is a top-level folder:
+
+| Folder | Stage | What lives here |
+|--------|-------|-----------------|
+| `01-discover/` | Awareness | Overview, use cases, core concepts |
+| `02-get-started/` | Onboarding | Quick start, authentication, first request |
+| `03-build/` | Integration | Task-oriented guides for shipping features |
+| `04-reference/` | Reference | Endpoint-by-endpoint reference, error catalog |
+| `05-advanced/` | Mastery | Rate limits, pagination, webhooks, best practices |
+| `06-support/` | Retention | Troubleshooting, FAQ, changelog, contact |
+
+### Why CJM beats the "group by resource" default
+
+Most API docs default to a flat resource grouping: `auth/`, `ideas/`, `comments/`. That works fine as a *reference*, but it answers the wrong question for newcomers — they need to know *how to start*, not *which endpoint hits the comments table*.
+
+The CJM layout solves three problems at once:
+
+1. **A clear entry point for new developers.** They start at `01-discover/` and read top-down. They don't have to guess whether "authentication" is where to start or where to look up an error code later.
+2. **Different jobs, different sections.** `03-build/` is task-oriented ("how do I let users like an idea?"). `04-reference/` is lookup-oriented ("what fields does `POST /ideas` accept?"). Mixing the two confuses both audiences.
+3. **Numbered prefixes encode the recommended reading order** in the filesystem itself — useful both for the sidebar and for anyone browsing the repo directly on GitHub.
+
+### Tradeoffs we accepted
+
+- **A topic can appear in two places.** Authentication is in `02-get-started/authentication-setup.md` (the walkthrough) *and* `04-reference/authentication.md` (the field-by-field). Cross-links keep them connected, and each one is shorter than a single all-purpose page.
+- **Slightly more nesting.** Six top-level folders instead of three. The benefit — clear separation between journey stages — is worth the extra click.
+
+## Directory layout
 
 ```
 docs/
-├── index.md                   # API Overview
-├── authentication/            # User auth & JWT tokens
-│   ├── registration.md
-│   ├── login.md
-│   └── tokens.md
-├── ideas/                     # Gift ideas management
-│   ├── create-idea.md
-│   ├── get-ideas.md
-│   ├── search-ideas.md
-│   └── update-idea.md
-├── comments/                  # Comments & discussions
-│   ├── add-comment.md
-│   └── get-comments.md
-├── ratings/                   # Likes & engagement
-│   ├── like-idea.md
-│   └── get-ratings.md
-├── users/                     # User management
-│   ├── profile.md
-│   └── settings.md
-└── examples/                  # Integration guides
-    ├── quick-start.md
-    └── integration-guide.md
+├── index.md                       Landing — value prop, journey entry points
+├── 01-discover/                   Stage 1: Awareness
+│   ├── overview.md
+│   ├── use-cases.md
+│   └── concepts.md
+├── 02-get-started/                Stage 2: Onboarding
+│   ├── quick-start.md
+│   ├── authentication-setup.md
+│   └── first-request.md
+├── 03-build/                      Stage 3: Integration (task-oriented)
+│   ├── manage-ideas.md
+│   ├── search-and-discover.md
+│   └── social-interactions.md
+├── 04-reference/                  Stage 4: Reference (resource-grouped)
+│   ├── authentication.md
+│   ├── ideas.md
+│   ├── comments.md
+│   ├── ratings.md
+│   ├── users.md
+│   └── errors.md
+├── 05-advanced/                   Stage 5: Mastery
+│   ├── rate-limits.md
+│   ├── pagination.md
+│   ├── webhooks.md
+│   └── best-practices.md
+└── 06-support/                    Stage 6: Retention
+    ├── troubleshooting.md
+    ├── faq.md
+    ├── changelog.md
+    └── contact.md
 ```
 
-## Local Development
+## Local development
 
 **Prerequisites:** Node.js 18+, npm
 
@@ -67,71 +86,32 @@ npm install
 npm run docs:dev
 ```
 
-**Build:** `npm run docs:build`
+The dev server hot-reloads on every save.
 
-## Built With
+**Build:**
 
-- [VitePress](https://vitepress.dev/) - Static site generator
-- [Vue 3](https://vuejs.org/) - Frontend framework  
-- [GitHub Actions](https://github.com/features/actions) - CI/CD
-- [GitHub Pages](https://pages.github.com/) - Hosting
-
-## API Examples
-
-### Register User
 ```bash
-curl -X POST https://api.lovinideas.com/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "SecurePass123!",
-    "username": "giftguru",
-    "full_name": "John Doe"
-  }'
+npm run docs:build
 ```
 
-### Search Gift Ideas
-```bash
-curl "https://api.lovinideas.com/v1/ideas/search?q=anniversary&price_range=25_50"
-```
+Output lands in `docs/.vitepress/dist/` — that's what GitHub Pages serves.
 
-### Create Gift Idea
-```bash
-curl -X POST https://api.lovinideas.com/v1/ideas \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{
-    "title": "Personalized Star Map",
-    "description": "Custom star map showing the stars on your special day...",
-    "category": "handmade",
-    "occasion": "anniversary",
-    "price_range": "25_50",
-    "recipient_type": "partner",
-    "tags": ["romantic", "personalized", "astronomy"]
-  }'
-```
+## Built with
+
+- [VitePress](https://vitepress.dev/) — static site generator
+- [Vue 3](https://vuejs.org/) — frontend framework
+- [GitHub Actions](https://github.com/features/actions) — CI/CD
+- [GitHub Pages](https://pages.github.com/) — hosting
 
 ## Contributing
 
-1. Fork repository
-2. Create feature branch: `git checkout -b feature/docs-improvement`
-3. Make changes and test locally: `npm run docs:dev`
-4. Commit and push: `git push origin feature/docs-improvement`
-5. Create Pull Request
+1. Fork the repo.
+2. Create a feature branch: `git checkout -b feature/improve-docs`.
+3. Make changes and verify locally: `npm run docs:dev`.
+4. Commit, push, open a PR.
 
-**Guidelines:** Clear language, practical examples, test code snippets.
-
-## API Status
-
-- **Base URL**: `https://api.lovinideas.com/v1`
-- **Version**: v1.0
-- **Rate Limits**: 1000 req/hour (auth), 100 req/hour (public)
-
-## Support
-
-- **Email**: api-support@lovinideas.com
-- **Issues**: [GitHub Issues](https://github.com/your-username/lovinideas-api-docs/issues)
+**Style:** plain language, real examples, working code. Match the tone of existing pages — direct and concrete, not corporate.
 
 ## License
 
-MIT License
+MIT

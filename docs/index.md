@@ -1,66 +1,31 @@
-# LovInIdeas API Documentation
+# LovInIdeas API
 
-REST API for LovInIdeas gift ideas platform. Users share and discover gift recommendations for various occasions and recipients.
+A REST API for the LovInIdeas platform — a place where people share gift ideas for birthdays, anniversaries, weddings, and everything in between.
 
-## Base URL
+This documentation is organized around the path you'll actually walk as a developer: from "what is this?" through your first successful call, into building real features, with a full reference always one click away.
 
-```
-https://api.lovinideas.com/v1
-```
+## Where to start
 
-## Authentication
+**New here?** → [What LovInIdeas is](/01-discover/overview) and then [Quick Start](/02-get-started/quick-start).
 
-All endpoints require JWT authentication:
+**Already integrating?** → Jump straight to [API Reference](/04-reference/authentication).
 
-```http
-Authorization: Bearer <jwt-token>
-```
+**Stuck?** → [Troubleshooting](/06-support/troubleshooting) and [FAQ](/06-support/faq) usually have it.
 
-Get tokens via [authentication](/authentication) endpoints.
+## The journey
 
-## Rate Limits
+| Stage | What you'll find |
+|-------|------------------|
+| **1. Discover** | What the API does, who it's for, the core concepts |
+| **2. Get Started** | Quick start, your first request, authentication |
+| **3. Build** | Task-oriented guides — how to ship real features |
+| **4. Reference** | Every endpoint, every field, every error code |
+| **5. Advanced** | Rate limits, pagination, webhooks, best practices |
+| **6. Support** | Troubleshooting, FAQ, changelog, contact |
 
-| User Type | Limit |
-|-----------|-------|
-| Authenticated | 1000 req/hour |
-| Unauthenticated | 100 req/hour |
+## At a glance
 
-## Response Format
-
-**Success Response:**
-```json
-{
-  "success": true,
-  "data": { /* response data */ },
-  "message": "Success message",
-  "timestamp": "2026-03-22T16:30:00Z"
-}
-```
-
-**Error Response:**
-```json
-{
-  "success": false,
-  "error": {
-    "code": "ERROR_CODE",
-    "message": "Error description",
-    "details": { /* additional info */ }
-  },
-  "timestamp": "2026-03-22T16:30:00Z"
-}
-```
-
-## Core Features
-
-- **Authentication** - User registration, login, JWT management
-- **Ideas Management** - CRUD operations for gift ideas
-- **Search** - Full-text search with filters
-- **Social Features** - Comments, likes, ratings
-- **User Profiles** - Profile and preference management
-
-## Quick Start
-
-1. [Register user](/authentication)
-2. [Login for JWT token](/authentication)  
-3. [Create gift idea](/ideas)
-4. [Search ideas](/ideas)
+- **Base URL:** `https://api.lovinideas.com/v1`
+- **Auth:** JWT bearer tokens, 24-hour expiry
+- **Rate limits:** 1000 req/hour authenticated, 100 req/hour public
+- **Response format:** JSON, consistent `{ success, data, error, timestamp }` envelope
