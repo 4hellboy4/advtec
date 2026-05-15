@@ -1,53 +1,67 @@
 # Core concepts
 
-A short tour of the vocabulary you'll see in every endpoint.
+This document defines the terminology used throughout the API.
 
 ## Idea
 
-The central object. An idea is a gift suggestion someone posted — a star map for an anniversary, a wireless charger for a colleague's birthday, a cookbook for a friend who just moved into their first kitchen.
+An idea represents a single gift recommendation authored by a user. Each idea has the following attributes:
 
-Every idea has:
-- A **title** and **description** written by the author.
-- A **category** (`electronics`, `handmade`, `experiences`, …) — what *kind* of thing it is.
-- An **occasion** (`birthday`, `wedding`, `just_because`, …) — *when* you'd give it.
-- A **recipient type** (`partner`, `colleague`, `child`, …) — *who* it's for.
-- A **price range** (`under_25`, `25_50`, `50_100`, …) — budget bucket.
-- Optional **tags** for free-form description (`romantic`, `eco-friendly`, `last-minute`).
+| Attribute | Description |
+|-----------|-------------|
+| Title | Short descriptive name |
+| Description | Detailed explanation of the gift |
+| Category | Type of item, such as `electronics` or `handmade` |
+| Occasion | Event for which the gift is suitable, such as `birthday` or `anniversary` |
+| Recipient type | Intended recipient, such as `partner` or `colleague` |
+| Price range | Budget bucket, such as `25_50` or `100_250` |
+| Tags | Optional free-form keywords for additional classification |
 
-These five facets are what powers search. The better the metadata, the better the recommendations.
+These attributes form the basis for search, filtering, and discovery.
 
 ## User
 
-Anyone with an account. Users author ideas, leave comments, give likes and ratings, and follow other users whose taste they trust.
+A user is an account holder. Users author ideas, post comments, submit likes and ratings, and follow other users.
 
-A user has a **profile** (public) and **settings** (private). The profile is what other users see; settings are things like notification preferences and default filters.
+A user has two distinct data sets:
+
+| Set | Visibility | Description |
+|-----|------------|-------------|
+| Profile | Public | Username, display name, bio, avatar, aggregate statistics |
+| Settings | Private | Notification preferences, default filters, privacy options |
 
 ## Comment
 
-A reply attached to an idea. Comments can themselves have replies (one level of nesting), giving you a small discussion thread per idea.
+A comment is a textual response attached to an idea. Comments support one level of nesting: replies may be posted to top-level comments but not to other replies.
 
-## Rating (and like)
+## Rating
 
-A **like** is binary — a quick "yes, I'd give this." A **rating** is a 1–5 score with optional text. Together they signal which ideas the community values most, which drives the `sort=popular` ordering.
+A rating is a numeric score from 1 to 5, optionally accompanied by a written review. Each user may submit one rating per idea. Aggregated ratings contribute to the `popular` sort order.
+
+## Like
+
+A like is a binary indicator of approval. Likes can be applied to ideas and to comments. Like counts contribute to the `popular` sort order.
 
 ## Authentication
 
-Almost everything that *writes* requires authentication. Browsing public ideas does not. Auth is JWT-based — see [authentication setup](/02-get-started/authentication-setup).
+The API uses JSON Web Tokens (JWT). Operations that create or modify data require an authenticated request. Read-only operations on public data do not require authentication.
 
-## The response envelope
+For details, see [Authentication setup](/02-get-started/authentication-setup).
 
-Every response looks like this:
+## Response envelope
+
+All API responses share a common structure:
 
 ```json
 {
   "success": true,
-  "data": { /* the actual result */ },
+  "data": { /* response payload */ },
   "timestamp": "2026-05-15T12:00:00Z"
 }
 ```
 
-On failure, `success: false` and an `error` object replaces `data`. This consistency means you can write one parser for everything.
+Error responses replace `data` with an `error` object. See [Errors](/04-reference/errors) for the complete format specification.
 
-## What's next
+## Related resources
 
-- [Quick Start](/02-get-started/quick-start) — make your first request.
+- [Quick start](/02-get-started/quick-start) — first API request.
+- [Overview](/01-discover/overview) — high-level platform description.

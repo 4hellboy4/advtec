@@ -1,40 +1,45 @@
 # Use cases
 
-Not sure if the API fits your project? Here are some patterns we see often.
+This document describes representative integration scenarios for the LovInIdeas API, along with the endpoints required for each.
 
-## The "what should I get her?" chatbot
+## Gift recommendation chatbot
 
-A user opens a chat, says *"my sister's 30th, she likes hiking, budget 100"*, and gets back five concrete suggestions with descriptions and prices.
+**Scenario:** A conversational interface (Telegram, Slack, Discord) accepts criteria such as recipient type, occasion, and budget, and returns suggested gift ideas.
 
-What you'd use:
-- `GET /ideas/search` with filters for `occasion`, `recipient_type`, `price_range`, and tags.
-- The `sort=popular` parameter to surface community favourites.
+**Endpoints used:**
 
-## The corporate gifting tool
+- `GET /ideas/search` with `q`, `recipient_type`, `price_range`, and `occasion` filters.
+- `sort=popular` to prioritize community-favored ideas.
 
-HR teams need to send birthday gifts to 200 employees per year without rebuilding the wheel each time.
+## Corporate gifting tool
 
-What you'd use:
-- `GET /ideas` with filters by `recipient_type=colleague` and `price_range`.
-- User profile endpoints to remember each employee's preferences.
+**Scenario:** An internal HR application generates gift suggestions for employees on birthdays and work anniversaries.
 
-## The personal gift journal
+**Endpoints used:**
 
-A private app where one user tracks "what I've given to whom" so they don't repeat themselves at the next family Christmas.
+- `GET /ideas` with `recipient_type=colleague` and `price_range` filters.
+- User profile endpoints to store preferences per employee.
 
-What you'd use:
-- Authentication for a single user.
-- `POST /ideas` to save their own picks, plus tags to mark "given to mom 2025".
+## Personal gift journal
 
-## The discovery feed
+**Scenario:** A private application that records gifts a user has given, indexed by recipient.
 
-A public site that curates trending gift ideas for the upcoming holiday — Valentine's, Mother's Day, graduation season.
+**Endpoints used:**
 
-What you'd use:
+- Authentication endpoints for a single-user setup.
+- `POST /ideas` to save selected items.
+- Tags to associate gifts with recipients and dates.
+
+## Curated discovery feed
+
+**Scenario:** A public website that surfaces trending gift ideas for upcoming holidays such as Valentine's Day, Mother's Day, or graduation season.
+
+**Endpoints used:**
+
 - `GET /ideas` with `occasion` filters and `sort=popular`.
-- Public endpoints (no auth needed for read-only browsing).
+- No authentication required for read-only browsing.
 
-## What's next
+## Related resources
 
-- [Core concepts](/01-discover/concepts) — the vocabulary you'll see throughout the docs.
-- [Quick Start](/02-get-started/quick-start) — make your first call in five minutes.
+- [Core concepts](/01-discover/concepts) — terminology used in API requests and responses.
+- [Quick start](/02-get-started/quick-start) — first API request.

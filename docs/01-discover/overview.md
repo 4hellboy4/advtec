@@ -1,23 +1,41 @@
-# What is LovInIdeas
+# Overview
 
-LovInIdeas is a community-driven gift ideas platform. People come here to solve a very specific, very recurring problem: *"What do I get for X?"* — where X is a partner, a colleague, a parent who already has everything, or a friend whose birthday is on Thursday.
+LovInIdeas is a community-driven gift recommendation platform. Users publish, browse, and discuss gift ideas grouped by occasion, recipient type, category, and price range.
 
-The API exposes everything the platform does. If you can do it on the website, you can do it through the API.
+The API exposes the full set of platform capabilities. Any operation available through the web interface is available through the API.
 
-## What you can build
+## Capabilities
 
-A few realistic examples:
+The API supports the following operations:
 
-- **A gift recommendation bot** for Telegram, Slack, or Discord that suggests ideas based on occasion and budget.
-- **A browser extension** that surfaces relevant ideas while users shop on retail sites.
-- **An internal HR tool** for sending personalized gifts to employees on birthdays and work anniversaries.
-- **A mobile app** that's just a nicer client for LovInIdeas itself.
+- User registration, authentication, and profile management.
+- Creating, listing, searching, updating, and deleting gift ideas.
+- Posting and retrieving comments and replies on ideas.
+- Liking ideas and submitting numeric ratings.
+- Following other users and managing follower relationships.
+- Receiving event notifications through webhooks.
 
-## Who this API is for
+## Intended audience
 
-This documentation assumes you've used REST APIs before. You know what a JWT is, you've made a `curl` request, and you can read a JSON response. If any of that is fuzzy, the [Quick Start](/02-get-started/quick-start) will fill in the gaps as you go.
+This documentation is intended for developers integrating the LovInIdeas API into their own applications. It assumes familiarity with:
 
-## What's next
+- REST APIs and HTTP request/response semantics.
+- JSON Web Tokens (JWT) for authentication.
+- A command-line HTTP client such as `curl`, or an equivalent library in the developer's language of choice.
 
-- [Use cases](/01-discover/use-cases) — fuller stories of what people build with this API.
-- [Core concepts](/01-discover/concepts) — the domain model in plain English.
+## Example applications
+
+The API supports a range of integration scenarios, including:
+
+- Chatbots that recommend gifts based on occasion and budget.
+- Browser extensions that surface relevant ideas during online shopping.
+- Internal corporate tools for managing employee gifts.
+- Mobile applications that provide alternative clients to the LovInIdeas web interface.
+
+For additional scenarios, see [Use cases](/01-discover/use-cases).
+
+## Related resources
+
+- [Use cases](/01-discover/use-cases) — detailed integration scenarios.
+- [Core concepts](/01-discover/concepts) — domain model and terminology.
+- [Quick start](/02-get-started/quick-start) — first API request in five minutes.

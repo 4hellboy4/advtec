@@ -1,39 +1,47 @@
-# FAQ
+# Frequently asked questions
 
 ## Is the API free to use?
 
-For personal projects and small apps, yes. Commercial usage above 10,000 requests per day requires a paid plan — get in touch via [contact](/06-support/contact) and we'll set it up.
+The API is free for personal projects and applications below 10,000 requests per day. Higher request volumes require a commercial plan. See [Contact](/06-support/contact) for inquiries.
 
-## Can I use the API without an account?
+## Is authentication required for all endpoints?
 
-You can read public ideas without authenticating. Anything that creates, updates, or interacts socially needs an account.
+No. Read-only endpoints for public ideas can be accessed without authentication. All endpoints that create, modify, or interact with user-specific data require an authentication token. See [Authentication setup](/02-get-started/authentication-setup).
 
-## Do you have official SDKs?
+## Are official SDKs available?
 
-Not yet. The API is small enough that a thin wrapper around `fetch` (or your language's HTTP client) covers it well — the [Quick Start](/02-get-started/quick-start) has a JS example. If you write one in another language, we'd love to link to it.
+No official SDKs are currently provided. The API can be used directly with any HTTP client. A JavaScript example is included in [Quick start](/02-get-started/quick-start).
 
-## How long do tokens last? Is there a refresh token?
+## How long are tokens valid?
 
-24 hours, and no refresh token. We deliberately keep it simple: log in again when the token expires.
+Tokens are valid for 86400 seconds (24 hours). The API does not provide a refresh endpoint; to obtain a new token, repeat the login procedure.
 
-## What's the data retention policy?
+## What is the data retention policy?
 
-- Deleted ideas: 30-day soft delete, then permanent.
-- Deleted accounts: 14-day soft delete, then permanent. All your ideas, comments, and ratings are removed at the same time.
-- Webhooks deliveries: logged for 7 days for debugging purposes.
+| Resource | Retention period |
+|----------|------------------|
+| Deleted ideas | 30 days (soft delete), then permanently removed |
+| Deleted accounts | 14 days (soft delete), then permanently removed with all associated data |
+| Webhook delivery logs | 7 days |
 
-## Can I bulk-import existing ideas?
+## Is bulk import supported?
 
-There's no dedicated bulk endpoint right now. Posting in a loop with respectful pacing (one every few seconds) works for hundreds of ideas. If you need to import thousands, [contact us](/06-support/contact) — we can enable a temporary higher rate limit.
+The API does not provide a dedicated bulk-import endpoint. For volumes up to a few hundred ideas, sequential creation with respectful pacing is sufficient. For larger volumes, contact the API team to request a temporary increased rate limit. See [Contact](/06-support/contact).
 
-## Why isn't endpoint X documented?
+## How are security issues reported?
 
-Either (a) it's internal-only and isn't part of the public contract, or (b) we forgot. If you're seeing something in our website's network tab that isn't here, ask us.
+Security vulnerabilities must be reported to `security@lovinideas.com` rather than through public issue trackers. The team responds within 48 hours.
 
-## How do I report a security issue?
+## What CORS policy applies?
 
-Email security@lovinideas.com — please don't open a public GitHub issue for vulnerabilities. We respond within 48 hours.
+| Endpoint type | Allowed origins |
+|---------------|------------------|
+| Public read endpoints | `*` |
+| Authenticated endpoints | Server-side use only; tokens must not be exposed to browser clients |
 
-## What CORS origins are allowed?
+For browser-based applications that require authenticated operations, route requests through a server-side proxy. See [Best practices](/05-advanced/best-practices).
 
-`*` for public read endpoints. For authenticated endpoints, you'll want a server-side proxy so your JWT never reaches the browser — see [best practices](/05-advanced/best-practices).
+## Related resources
+
+- [Troubleshooting](/06-support/troubleshooting) — common issues and resolutions.
+- [Contact](/06-support/contact) — support channels.

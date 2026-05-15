@@ -1,22 +1,26 @@
 # Your first request
 
-Let's make one call end to end and read the response carefully, so the rest of the docs feel familiar.
+This document walks through a single API request and its response, identifying the components shared by all endpoints.
 
-We'll fetch the first page of public gift ideas — no auth required.
+## Example request
 
-## The call
+Retrieve the first page of public ideas:
 
 ```bash
 curl "https://api.lovinideas.com/v1/ideas?limit=2"
 ```
 
-Three things to notice:
+The request consists of three components:
 
-1. **`https://api.lovinideas.com/v1`** is the base URL. Every endpoint hangs off this.
-2. **`/ideas`** is the resource. Almost everything in this API is built around ideas.
-3. **`?limit=2`** is a query parameter. Most list endpoints support `limit` and `page`.
+| Component | Value | Description |
+|-----------|-------|-------------|
+| Base URL | `https://api.lovinideas.com/v1` | Common prefix for all endpoints; includes the API version |
+| Path | `/ideas` | Resource being accessed |
+| Query parameters | `?limit=2` | Optional filtering and pagination controls |
 
-## The response
+No authentication is required because this endpoint operates on public data.
+
+## Example response
 
 ```json
 {
@@ -26,7 +30,7 @@ Three things to notice:
       {
         "id": "idea_9876543210",
         "title": "Wireless Charging Station",
-        "description": "Perfect tech gift for multiple devices...",
+        "description": "Tech gift compatible with multiple device types.",
         "category": "electronics",
         "occasion": "birthday",
         "price_range": "50_100",
@@ -48,18 +52,20 @@ Three things to notice:
 }
 ```
 
-Read this top-down:
+### Response fields
 
-- **`success`** — `true` means the request succeeded. On failure this flips to `false` and `data` is replaced by `error`.
-- **`data.ideas`** — the array you actually came for.
-- **`data.pagination`** — tells you whether there's more. Walk pages by incrementing `?page=`.
-- **`timestamp`** — server time when the response was built. Useful for debugging clock skew.
+| Field | Description |
+|-------|-------------|
+| `success` | Indicates whether the request succeeded |
+| `data.ideas` | Array of idea objects |
+| `data.pagination` | Pagination metadata; see [Pagination](/05-advanced/pagination) |
+| `timestamp` | ISO 8601 timestamp of the response |
 
-Every successful response in the API has the same shape. Same for errors. This means you can write one response parser and reuse it everywhere.
+This envelope structure is consistent across all endpoints. Error responses follow the same shape, with `data` replaced by an `error` object.
 
-## Now with auth
+## Authenticated request
 
-To create something, you'll need a token (see [authentication setup](/02-get-started/authentication-setup)) and the `Authorization` header:
+To create a resource, include an authentication token in the `Authorization` header:
 
 ```bash
 curl -X POST "https://api.lovinideas.com/v1/ideas" \
@@ -67,7 +73,7 @@ curl -X POST "https://api.lovinideas.com/v1/ideas" \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Sourdough Starter Kit",
-    "description": "Everything they need to bake their first loaf.",
+    "description": "Complete set for home bread baking.",
     "category": "food_drinks",
     "occasion": "just_because",
     "price_range": "25_50",
@@ -75,11 +81,10 @@ curl -X POST "https://api.lovinideas.com/v1/ideas" \
   }'
 ```
 
-If the token is missing or expired, you'll get `401 Unauthorized` — that's your cue to log in again.
+If the token is missing or has expired, the API returns `401 Unauthorized`. See [Authentication setup](/02-get-started/authentication-setup) for token handling.
 
-## What's next
+## Related resources
 
-You've covered the basics. Move on to building real features:
-
-- [Manage ideas](/03-build/manage-ideas) — full CRUD walkthroughs.
-- [Search and discover](/03-build/search-and-discover) — filters, sorting, trending.
+- [Manage ideas](/03-build/manage-ideas) — task-oriented walkthroughs for idea operations.
+- [Search and discover](/03-build/search-and-discover) — filtering and search patterns.
+- [Pagination](/05-advanced/pagination) — paginated response handling.

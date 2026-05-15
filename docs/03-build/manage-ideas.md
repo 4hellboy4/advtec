@@ -1,10 +1,15 @@
 # Manage ideas
 
-Task-oriented walkthrough of the idea lifecycle: create, read, update, delete. For the full field-by-field reference, see [ideas reference](/04-reference/ideas).
+This guide describes how to perform the four lifecycle operations on gift ideas: create, read, update, and delete. For the complete field and parameter reference, see [Ideas](/04-reference/ideas).
 
-## Create a new idea
+## Prerequisites
 
-The minimum viable idea needs a title, description, category, occasion, price range, and recipient type. Tags are optional but help discovery a lot.
+- An authentication token. See [Authentication setup](/02-get-started/authentication-setup).
+- Familiarity with the response envelope. See [Your first request](/02-get-started/first-request).
+
+## Create an idea
+
+A new idea requires `title`, `description`, `category`, `occasion`, `price_range`, and `recipient_type`. Tags are optional but improve discoverability.
 
 ```bash
 curl -X POST "https://api.lovinideas.com/v1/ideas" \
@@ -12,7 +17,7 @@ curl -X POST "https://api.lovinideas.com/v1/ideas" \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Personalized Star Map for Anniversary",
-    "description": "Custom star map showing the stars on your special day. High-quality print, ready to frame.",
+    "description": "Custom star map showing the stars on a specific date. High-quality print, ready to frame.",
     "category": "handmade",
     "occasion": "anniversary",
     "price_range": "25_50",
@@ -21,35 +26,38 @@ curl -X POST "https://api.lovinideas.com/v1/ideas" \
   }'
 ```
 
-**Tips that save support tickets:**
+### Field requirements
 
-- Title must be 5–200 characters. "Speaker" is too short; pick something descriptive.
-- Description is 20–2000 characters. Two or three sentences works well.
-- `category`, `occasion`, `price_range`, `recipient_type` are enums — only the documented values are accepted. See [ideas reference](/04-reference/ideas) for the full lists.
-- Up to 10 tags. Lowercase, no spaces.
+| Constraint | Detail |
+|------------|--------|
+| `title` length | 5–200 characters |
+| `description` length | 20–2000 characters |
+| Enumeration fields | Must use documented values; see [Ideas](/04-reference/ideas) |
+| `tags` count | Maximum 10 |
+| Tag format | Lowercase, no whitespace |
 
-## Read a single idea
+## Retrieve a single idea
 
 ```bash
 curl "https://api.lovinideas.com/v1/ideas/idea_9876543210"
 ```
 
-You'll get the idea object plus a preview of comments and aggregate stats. To paginate through *all* comments, hit `/ideas/{id}/comments` separately.
+The response includes the idea object, the first page of comments, and aggregate statistics. To retrieve additional comments, call the comments endpoint directly. See [Comments](/04-reference/comments).
 
 ## Update an idea
 
-Only the author can edit. Send just the fields you want to change:
+Only the original author may update an idea. Include only the fields to be modified:
 
 ```bash
 curl -X PUT "https://api.lovinideas.com/v1/ideas/idea_9876543210" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "Personalized Star Map — updated for 2026"
+    "title": "Personalized Star Map (updated 2026)"
   }'
 ```
 
-If someone else's token is in the header, you'll get `403 UNAUTHORIZED_UPDATE`.
+Requests from non-authors return `403 UNAUTHORIZED_UPDATE`.
 
 ## Delete an idea
 
@@ -58,18 +66,19 @@ curl -X DELETE "https://api.lovinideas.com/v1/ideas/idea_9876543210" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-Deletion is soft for 30 days — the idea disappears from search and listings, but you can restore it through user settings during that window. After 30 days it's gone for good.
+Deletion is a soft delete with a 30-day retention period. During this window, the idea is removed from search and listing endpoints but can be restored through user settings. After 30 days, the idea is permanently deleted.
 
-## Common pitfalls
+## Common errors
 
 | Symptom | Likely cause |
 |---------|--------------|
-| `VALIDATION_ERROR` on create | Title too short, or an enum value mistyped (`birthdays` vs `birthday`) |
-| `DUPLICATE_TITLE` | You already have an idea with that exact title — titles are unique per user |
-| `UNAUTHORIZED_UPDATE` | The token doesn't belong to the idea's author |
-| Empty `tags` array returned | You sent an empty array — totally fine, but worth knowing |
+| `VALIDATION_ERROR` on create | Field length below the minimum, or an enumeration value misspelled |
+| `DUPLICATE_TITLE` | The author already has an idea with the same title |
+| `UNAUTHORIZED_UPDATE` | The token does not belong to the idea author |
+| Empty `tags` array in response | An empty array was submitted, which is permitted |
 
-## What's next
+## Related resources
 
-- [Search and discover](/03-build/search-and-discover) — make your ideas findable.
-- [Social interactions](/03-build/social-interactions) — comments, likes, ratings.
+- [Ideas](/04-reference/ideas) — complete endpoint reference.
+- [Search and discover](/03-build/search-and-discover) — making ideas findable.
+- [Social interactions](/03-build/social-interactions) — comments, likes, and ratings.

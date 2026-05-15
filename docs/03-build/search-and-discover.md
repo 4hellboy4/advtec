@@ -1,65 +1,83 @@
 # Search and discover
 
-Two flavours of finding things: **browse** (list ideas with filters) and **search** (full-text query, optionally with the same filters).
+This guide describes how to retrieve ideas using two approaches: filtered listing and full-text search.
 
-## Browse with filters
+## Filtered listing
+
+Use `GET /ideas` to retrieve ideas matching one or more filter criteria:
 
 ```bash
 curl "https://api.lovinideas.com/v1/ideas?category=electronics&occasion=birthday&sort=popular&limit=10"
 ```
 
-Useful parameters:
+### Available filters
 
-| Parameter | What it does |
-|-----------|--------------|
-| `category` | One of the category enums (`electronics`, `handmade`, …) |
-| `occasion` | `birthday`, `anniversary`, `wedding`, … |
-| `price_range` | `under_25`, `25_50`, … |
-| `recipient_type` | `partner`, `colleague`, `child`, … |
-| `sort` | `newest`, `oldest`, `popular` |
-| `page` / `limit` | Pagination, max 100 per page |
+| Parameter | Description |
+|-----------|-------------|
+| `category` | Category enumeration value |
+| `occasion` | Occasion enumeration value |
+| `price_range` | Price range enumeration value |
+| `recipient_type` | Recipient type enumeration value |
+| `sort` | One of `newest`, `oldest`, `popular` |
+| `page` / `limit` | Pagination controls; maximum 100 items per page |
 
-Combine them freely. `category=electronics&recipient_type=colleague&price_range=50_100` is the classic "office birthday" query.
+Filters combine with logical AND. Combining `category`, `recipient_type`, and `price_range` produces narrow result sets suitable for specific scenarios such as office gift selection.
 
 ## Full-text search
+
+Use `GET /ideas/search` for keyword-based queries:
 
 ```bash
 curl "https://api.lovinideas.com/v1/ideas/search?q=bluetooth+speaker&category=electronics&sort=popular"
 ```
 
-`q` is required and must be at least two characters. It searches across `title`, `description`, and `tags`. You can still apply filters on top — search and filter combine, they don't conflict.
+### Query requirements
 
-When you sort by `relevance` (the default for search), the ranking takes into account text match quality *and* engagement (likes, comments). When you sort by `popular`, relevance is ignored — pure popularity.
+| Parameter | Requirement |
+|-----------|-------------|
+| `q` | Required; minimum 2 characters |
+| `category`, `price_range`, `sort` | Optional; combined with the search query |
 
-## Trending ideas
+The search query is matched against `title`, `description`, and `tags`. Filters and search queries combine; they do not override each other.
 
-There isn't a dedicated `/trending` endpoint. Instead, use the regular list with a tight time window:
+### Sort behavior
+
+| Sort value | Behavior |
+|------------|----------|
+| `relevance` (default) | Combines text match quality with engagement metrics |
+| `newest` | Most recent first; ignores relevance |
+| `popular` | Highest engagement first; ignores relevance |
+
+## Trending content
+
+The API does not provide a dedicated trending endpoint. Trending content can be approximated using the standard listing endpoint with `sort=popular` and an occasion filter:
 
 ```bash
 curl "https://api.lovinideas.com/v1/ideas?occasion=valentines&sort=popular&limit=20"
 ```
 
-For "what's hot right now", filter by the relevant occasion and sort by popularity.
+## Pagination guidance
 
-## Pagination, in practice
-
-Always check `pagination.has_next` before assuming you've seen everything:
+Always evaluate `pagination.has_next` before assuming a result set is complete:
 
 ```javascript
 let page = 1;
-let allIdeas = [];
+const allIdeas = [];
 
 while (true) {
-  const res = await api.getIdeas({ category: 'books_media', page, limit: 50 });
-  allIdeas.push(...res.data.ideas);
-  if (!res.data.pagination.has_next) break;
+  const response = await api.getIdeas({ category: 'books_media', page, limit: 50 });
+  allIdeas.push(...response.data.ideas);
+  if (!response.data.pagination.has_next) {
+    break;
+  }
   page++;
 }
 ```
 
-For large pulls, prefer the maximum `limit=100` to halve your request count.
+For bulk retrieval, use `limit=100` to minimize the number of requests. For details, see [Pagination](/05-advanced/pagination).
 
-## What's next
+## Related resources
 
-- [Social interactions](/03-build/social-interactions) — comments, likes, ratings.
-- [Pagination patterns](/05-advanced/pagination) — cursor vs page, when each makes sense.
+- [Ideas](/04-reference/ideas) — complete endpoint reference.
+- [Pagination](/05-advanced/pagination) — pagination format and traversal patterns.
+- [Social interactions](/03-build/social-interactions) — comments, likes, and ratings.

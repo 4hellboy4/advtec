@@ -1,36 +1,47 @@
-# Quick Start
+# Quick start
 
-Five minutes from zero to a working API call. We'll register an account, log in, post an idea, and search for it.
+This guide demonstrates the basic API workflow: registering an account, obtaining an authentication token, creating an idea, and searching for it.
 
-## 1. Register an account
+## Prerequisites
+
+| Requirement | Verification |
+|-------------|--------------|
+| `curl` or an equivalent HTTP client | `curl --version` |
+| Network access to `https://api.lovinideas.com` | — |
+
+## Procedure
+
+### Step 1. Register an account
 
 ```bash
 curl -X POST https://api.lovinideas.com/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "you@example.com",
+    "email": "user@example.com",
     "password": "SecurePass123!",
     "username": "developer",
-    "full_name": "Your Name"
+    "full_name": "Developer Name"
   }'
 ```
 
-The response includes a `token` — you can either save it now, or log in again later to get a fresh one.
+The response contains an authentication token in the `token` field.
 
-## 2. Log in for a token
+### Step 2. Obtain a token
+
+If the token from registration is no longer available, request a new one:
 
 ```bash
 curl -X POST https://api.lovinideas.com/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "you@example.com",
+    "email": "user@example.com",
     "password": "SecurePass123!"
   }'
 ```
 
-Copy the `token` from the response — you'll send it with every authenticated request.
+Store the returned `token` value for use in subsequent requests.
 
-## 3. Post an idea
+### Step 3. Create an idea
 
 ```bash
 curl -X POST https://api.lovinideas.com/v1/ideas \
@@ -38,7 +49,7 @@ curl -X POST https://api.lovinideas.com/v1/ideas \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
     "title": "Bluetooth Speaker",
-    "description": "Great sound quality, perfect for an office desk.",
+    "description": "Compact speaker with high sound quality, suitable for desk use.",
     "category": "electronics",
     "occasion": "birthday",
     "price_range": "50_100",
@@ -47,17 +58,17 @@ curl -X POST https://api.lovinideas.com/v1/ideas \
   }'
 ```
 
-## 4. Search
+### Step 4. Search
 
 ```bash
 curl "https://api.lovinideas.com/v1/ideas/search?q=bluetooth&price_range=50_100"
 ```
 
-You should see the idea you just posted in the results.
+The created idea should appear in the search results.
 
-## A minimal JavaScript client
+## JavaScript client example
 
-If `curl` isn't your thing, here's the same flow as a small JS class:
+The same workflow can be expressed as a minimal JavaScript client:
 
 ```javascript
 class LovInIdeasAPI {
@@ -94,8 +105,8 @@ const api = new LovInIdeasAPI('your_token');
 const ideas = await api.getIdeas({ category: 'electronics' });
 ```
 
-## What's next
+## Related resources
 
-- [Your first request, explained line by line](/02-get-started/first-request)
-- [How authentication really works](/02-get-started/authentication-setup)
-- [Build something real](/03-build/manage-ideas)
+- [Your first request](/02-get-started/first-request) — detailed walkthrough of a single request and response.
+- [Authentication setup](/02-get-started/authentication-setup) — token lifecycle.
+- [Manage ideas](/03-build/manage-ideas) — task-oriented guide for the idea lifecycle.

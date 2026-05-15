@@ -1,55 +1,67 @@
 # Troubleshooting
 
-If something isn't working, scan this page before opening a ticket. Most issues are one of these.
+This document describes common issues encountered when using the API, along with their causes and resolutions.
 
-## "Why am I getting 401?"
+## Authentication errors
 
-Three usual suspects:
+### HTTP 401 Unauthorized
 
-1. **No `Authorization` header.** The endpoint requires auth and you didn't send a token.
-2. **Token expired.** Tokens last 24 hours. Log in again — see [authentication setup](/02-get-started/authentication-setup).
-3. **Token malformed.** Often a copy-paste issue — missing a trailing character, or you included literal quotes around the value.
+**Possible causes:**
 
-Look at the `error.code` to tell them apart: `TOKEN_EXPIRED` vs `TOKEN_INVALID` vs simply no error code (no header sent).
+| Cause | Indicator | Resolution |
+|-------|-----------|------------|
+| Missing `Authorization` header | No `error.code` set; generic 401 | Add the header to the request |
+| Token expired | `error.code: TOKEN_EXPIRED` | Re-authenticate; see [Authentication setup](/02-get-started/authentication-setup) |
+| Malformed token | `error.code: TOKEN_INVALID` | Verify that the token was copied without truncation or extra characters |
 
-## "Why am I getting 403 on update?"
+### HTTP 403 Forbidden on update or delete
 
-You're authenticated, but you don't own the thing you're trying to modify. Only the author can update or delete an idea, comment, or rating.
+The authenticated user is not the author of the target resource. Only the original author may update or delete an idea, comment, or rating. Verify that the token belongs to the resource owner.
 
-## "Why am I getting 400 on create?"
+## Validation errors
 
-Almost always validation. Check the response — `error.details.field` tells you which field failed and why.
+### HTTP 400 Bad Request on resource creation
 
-Top three sources:
-- Enum typo — `birthdays` instead of `birthday`.
-- Title too short (under 5 chars) or description too short (under 20 chars).
-- `tags` is not an array (sending a comma-separated string instead).
+The `error.details.field` and `error.details.received` fields identify the failing field and the submitted value.
 
-## "Why is my search returning nothing?"
+**Common causes:**
 
-- `q` must be at least 2 characters.
-- Filters are AND-ed — `category=electronics&occasion=wedding&price_range=under_25` may legitimately have zero matches.
-- New ideas can take a minute to be indexed. Wait and retry.
+- Enumeration value misspelled (for example, `birthdays` instead of `birthday`).
+- Field length below the minimum (`title` under 5 characters; `description` under 20).
+- `tags` submitted as a string rather than an array.
 
-## "Why is my request randomly slow?"
+## Search returns no results
 
-Big `limit` values (close to 100) on heavily filtered queries can be slow. Try reducing `limit` to 20–50, or narrowing your filters.
+| Cause | Resolution |
+|-------|------------|
+| `q` parameter shorter than 2 characters | Increase query length |
+| Filter combination produces an empty set | Loosen filters; verify combinations make sense |
+| Newly created idea not yet indexed | Retry after one minute |
 
-If a single request consistently takes more than 5 seconds, something is genuinely wrong on our side — [contact us](/06-support/contact).
+## Slow response times
 
-## "My webhook isn't firing"
+Large `limit` values combined with broad filters may produce slow responses. To improve performance:
 
-In order of likelihood:
+- Reduce `limit` to a value between 20 and 50.
+- Apply additional filters to narrow the result set.
 
-1. The event name is wrong. They're case-sensitive — `idea.commented`, not `Idea.Commented`.
-2. Your endpoint returned a non-2xx response. Check your logs; we retry up to 5 times then give up.
-3. The action happened on someone *else's* idea. Webhooks fire for objects you own.
-4. Your URL changed. Re-register the webhook with the new URL.
+Response times consistently exceeding 5 seconds for a single request indicate a server-side issue and should be reported through [Contact](/06-support/contact).
 
-## "I get `RATE_LIMIT_EXCEEDED` even though I'm not making many requests"
+## Webhook delivery failures
 
-Check `X-RateLimit-Limit` — for unauthenticated requests it's 100/hour *per IP*. If you're behind a shared NAT, you're sharing that bucket. Authenticate to get the 1000/hour per-user limit.
+| Cause | Resolution |
+|-------|------------|
+| Incorrect event name | Verify event name spelling; names are case-sensitive |
+| Client endpoint returns non-2xx status | Inspect endpoint logs; the API retries up to four additional times |
+| Event triggered on a resource not owned by the registered user | Webhooks fire only for events on the user's own resources |
+| Endpoint URL changed | Re-register the webhook with the current URL |
 
-## Still stuck?
+## Unexpected rate-limit errors
 
-Open an issue or email us — [contact](/06-support/contact). Include the full `error` object and the request you sent (with the token redacted, please).
+When `RATE_LIMIT_EXCEEDED` is returned for an apparently low request volume, inspect the `X-RateLimit-Limit` header. Unauthenticated requests are limited to 100 per hour per IP address. Clients sharing an IP address through NAT share this quota. Authenticate to access the per-user limit of 1000 per hour.
+
+## Related resources
+
+- [Errors](/04-reference/errors) — complete error code catalog.
+- [Rate limits](/05-advanced/rate-limits) — quotas and retry guidance.
+- [Contact](/06-support/contact) — reporting unresolved issues.

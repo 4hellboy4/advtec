@@ -1,66 +1,87 @@
 # Authentication setup
 
-LovInIdeas uses JWT bearer tokens. The short version: log in once, get a token, send it on every authenticated request. Tokens last 24 hours; after that, log in again.
+This document describes how to obtain and use JSON Web Tokens (JWT) for authenticated API requests.
 
-## Get a token
+## Token lifecycle
+
+The API uses bearer tokens with the following properties:
+
+| Property | Value |
+|----------|-------|
+| Token type | JWT |
+| Validity period | 86400 seconds (24 hours) |
+| Refresh mechanism | None; clients must re-authenticate after expiry |
+
+## Procedure
+
+### Step 1. Obtain a token
+
+Submit a login request with valid credentials:
 
 ```bash
 curl -X POST https://api.lovinideas.com/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "you@example.com",
+    "email": "user@example.com",
     "password": "SecurePass123!"
   }'
 ```
 
-The response:
+The response contains the token and its validity period in seconds:
 
 ```json
 {
   "success": true,
   "data": {
-    "user": { "id": "usr_...", "username": "you" },
+    "user": { "id": "usr_...", "username": "developer" },
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "expires_in": 86400
   }
 }
 ```
 
-`expires_in` is seconds — 86400 = 24 hours.
+### Step 2. Include the token in requests
 
-## Use the token
-
-Add it to the `Authorization` header on every authenticated request:
+Add the token to the `Authorization` header of each authenticated request:
 
 ```http
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-That's it. No refresh tokens, no rotation — keep it simple, log in again when it expires.
+## Authentication requirements by endpoint type
 
-## What needs auth, what doesn't
+| Operation | Authentication |
+|-----------|----------------|
+| Browsing public ideas | Not required |
+| Searching public ideas | Not required |
+| Creating, updating, or deleting ideas | Required |
+| Posting comments, likes, or ratings | Required |
+| Reading or modifying user profile and settings | Required |
+| Registering or managing webhooks | Required |
 
-| Type of request | Auth required? |
-|-----------------|----------------|
-| Browsing public ideas (`GET /ideas`) | No |
-| Searching (`GET /ideas/search`) | No |
-| Creating / updating / deleting ideas | Yes |
-| Commenting, liking, rating | Yes |
-| Anything that touches a user profile | Yes |
+## Token storage
 
-A good rule of thumb: if the action would *create or change* something attributed to a person, it needs a token.
+Tokens grant full access to the associated account. Store them according to the deployment environment:
 
-## Storing the token safely
+| Environment | Recommended storage |
+|-------------|---------------------|
+| Server-side application | Environment variable or secrets manager |
+| Browser application | HTTP-only cookie issued by a backend proxy |
+| Mobile application | Platform secure storage (iOS Keychain, Android Keystore) |
 
-- **Server-side apps:** environment variable or secrets manager. Never in your repo.
-- **Browser apps:** `httpOnly` cookies set by your backend, not `localStorage`.
-- **Mobile apps:** the platform keychain (iOS Keychain, Android Keystore).
+Tokens must not be committed to source control, logged, or exposed in client-side code.
 
-## Handling expiry
+## Handling token expiry
 
-When a token expires, you'll get `401 Unauthorized` with `error.code = "TOKEN_EXPIRED"`. Re-login transparently and retry the request — once. If the second attempt also fails, surface the error to the user.
+When a token expires, the API returns `401 Unauthorized` with `error.code = "TOKEN_EXPIRED"`. The recommended client behavior is:
 
-## What's next
+1. Detect the `TOKEN_EXPIRED` error code.
+2. Repeat the login procedure transparently.
+3. Retry the original request once.
+4. If the retry also fails, surface the error to the user.
 
-- [Your first request](/02-get-started/first-request) — make an authenticated call end-to-end.
-- [Authentication reference](/04-reference/authentication) — every field, every error code.
+## Related resources
+
+- [Your first request](/02-get-started/first-request) — example of an authenticated request.
+- [Authentication](/04-reference/authentication) — complete endpoint reference.
+- [Errors](/04-reference/errors) — error code catalog.

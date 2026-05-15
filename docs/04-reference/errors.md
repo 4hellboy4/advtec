@@ -1,15 +1,17 @@
-# Errors reference
+# Errors
 
-A single catalogue of every error code the API can return, plus the HTTP status it travels with.
+Complete catalog of error codes returned by the API, grouped by domain.
 
-## Anatomy of an error response
+## Error response format
+
+All error responses share the following structure:
 
 ```json
 {
   "success": false,
   "error": {
     "code": "VALIDATION_ERROR",
-    "message": "Title must be at least 5 characters",
+    "message": "Human-readable description.",
     "details": {
       "field": "title",
       "received": "TV"
@@ -19,63 +21,80 @@ A single catalogue of every error code the API can return, plus the HTTP status 
 }
 ```
 
-Always check `success` first. If it's `false`, the `error.code` is your switch statement key — `error.message` is for humans, `error.details` is contextual extras.
+| Field | Description |
+|-------|-------------|
+| `success` | Always `false` for error responses |
+| `error.code` | Machine-readable error identifier; use this for programmatic handling |
+| `error.message` | Human-readable description; intended for logging and user display |
+| `error.details` | Optional object containing contextual information specific to the error |
+| `timestamp` | ISO 8601 timestamp of the response |
 
-## HTTP status codes used
+## HTTP status codes
 
 | Status | Meaning |
 |--------|---------|
-| `400` | Bad request — usually validation |
-| `401` | Missing or invalid token |
-| `403` | Authenticated, but not allowed to do this |
-| `404` | The resource doesn't exist |
-| `409` | Conflict — duplicate, or state collision |
-| `422` | The request is valid syntactically but semantically wrong |
-| `429` | Rate limit hit |
-| `500` | Something broke on our side |
+| `400` | Bad request; typically a validation failure |
+| `401` | Authentication required or token invalid |
+| `403` | Authenticated, but not authorized for this operation |
+| `404` | Resource does not exist |
+| `409` | Conflict with existing resource or state |
+| `422` | Request is syntactically valid but semantically incorrect |
+| `423` | Resource is locked |
+| `429` | Rate limit exceeded |
+| `500` | Internal server error |
+| `503` | Service temporarily unavailable |
 
-## Codes by area
+## Authentication errors
 
-### Authentication
-| Code | Status | Meaning |
-|------|--------|---------|
-| `VALIDATION_ERROR` | 400 | Field failed validation |
-| `EMAIL_EXISTS` | 409 | Email already registered |
-| `USERNAME_TAKEN` | 409 | Username already taken |
-| `INVALID_CREDENTIALS` | 401 | Wrong email/password |
-| `ACCOUNT_LOCKED` | 401 | Too many failed attempts |
-| `TOKEN_EXPIRED` | 401 | JWT has expired |
-| `TOKEN_INVALID` | 401 | JWT is malformed or revoked |
+| Code | HTTP status | Description |
+|------|-------------|-------------|
+| `VALIDATION_ERROR` | 400 | One or more fields failed validation |
+| `EMAIL_EXISTS` | 409 | Email address is already registered |
+| `USERNAME_TAKEN` | 409 | Username is already in use |
+| `INVALID_CREDENTIALS` | 401 | Email or password is incorrect |
+| `ACCOUNT_LOCKED` | 423 | Account is locked due to repeated failed attempts |
+| `TOKEN_EXPIRED` | 401 | Authentication token has expired |
+| `TOKEN_INVALID` | 401 | Authentication token is malformed or revoked |
 
-### Ideas
-| Code | Status | Meaning |
-|------|--------|---------|
-| `IDEA_NOT_FOUND` | 404 | No idea with that ID |
-| `UNAUTHORIZED_UPDATE` | 403 | You're not the author |
-| `DUPLICATE_TITLE` | 409 | You already have that title |
-| `ENUM_INVALID` | 400 | Category/occasion/etc. value not in allowed list |
+## Idea errors
 
-### Comments
-| Code | Status | Meaning |
-|------|--------|---------|
-| `COMMENT_NOT_FOUND` | 404 | `parent_id` doesn't resolve |
-| `COMMENTS_DISABLED` | 403 | Author has turned off comments |
+| Code | HTTP status | Description |
+|------|-------------|-------------|
+| `IDEA_NOT_FOUND` | 404 | No idea exists with the specified identifier |
+| `UNAUTHORIZED_UPDATE` | 403 | The authenticated user is not the idea author |
+| `DUPLICATE_TITLE` | 409 | The author already has an idea with this title |
+| `ENUM_INVALID` | 400 | An enumeration field contains an unsupported value |
 
-### Ratings
-| Code | Status | Meaning |
-|------|--------|---------|
-| `SELF_RATING_FORBIDDEN` | 403 | Can't rate your own idea |
+## Comment errors
 
-### Users
-| Code | Status | Meaning |
-|------|--------|---------|
-| `USER_NOT_FOUND` | 404 | No user with that ID/username |
-| `PROFILE_PRIVATE` | 403 | Profile isn't viewable by you |
-| `SELF_FOLLOW_FORBIDDEN` | 403 | Can't follow yourself |
+| Code | HTTP status | Description |
+|------|-------------|-------------|
+| `COMMENT_NOT_FOUND` | 404 | The referenced comment does not exist |
+| `COMMENTS_DISABLED` | 403 | Comments are disabled for the target idea |
 
-### Global
-| Code | Status | Meaning |
-|------|--------|---------|
-| `RATE_LIMIT_EXCEEDED` | 429 | You're hitting the API too fast |
-| `INTERNAL_ERROR` | 500 | We broke something — please retry |
-| `MAINTENANCE` | 503 | Brief planned downtime |
+## Rating errors
+
+| Code | HTTP status | Description |
+|------|-------------|-------------|
+| `SELF_RATING_FORBIDDEN` | 403 | A user cannot rate their own idea |
+
+## User errors
+
+| Code | HTTP status | Description |
+|------|-------------|-------------|
+| `USER_NOT_FOUND` | 404 | No user exists with the specified identifier or username |
+| `PROFILE_PRIVATE` | 403 | Profile is not visible to the requester |
+| `SELF_FOLLOW_FORBIDDEN` | 403 | A user cannot follow their own account |
+
+## Global errors
+
+| Code | HTTP status | Description |
+|------|-------------|-------------|
+| `RATE_LIMIT_EXCEEDED` | 429 | Rate limit exceeded; see the `Retry-After` header |
+| `INTERNAL_ERROR` | 500 | An unexpected error occurred on the server |
+| `MAINTENANCE` | 503 | The API is temporarily unavailable due to planned maintenance |
+
+## Related resources
+
+- [Rate limits](/05-advanced/rate-limits) — rate limit specifications and retry guidance.
+- [Authentication](/04-reference/authentication) — token lifecycle and renewal.

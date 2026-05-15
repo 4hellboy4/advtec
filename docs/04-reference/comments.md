@@ -1,22 +1,35 @@
-# Comments reference
+# Comments
 
-Full reference for the comments resource. For a walkthrough with examples, see [social interactions](/03-build/social-interactions).
+Endpoints for creating, listing, and liking comments on ideas.
 
-## Add a comment
+For a procedural walkthrough, see [Social interactions](/03-build/social-interactions).
+
+## Endpoint summary
+
+| Method | Path | Authorization |
+|--------|------|---------------|
+| `POST` | `/ideas/{idea_id}/comments` | Required |
+| `GET` | `/ideas/{idea_id}/comments` | Not required |
+| `POST` | `/comments/{comment_id}/like` | Required |
+
+## Create a comment
 
 ```http
 POST /ideas/{idea_id}/comments
 Authorization: Bearer <token>
+Content-Type: application/json
 ```
 
 ### Request body
 
-| Field | Type | Required | Description |
+| Field | Type | Required | Constraints |
 |-------|------|----------|-------------|
 | `content` | string | Yes | 5–1000 characters |
-| `parent_id` | string | No | Comment ID, when replying |
+| `parent_id` | string | No | Identifier of a top-level comment, when posting a reply |
 
-### Example
+Replies may be attached only to top-level comments. Nested replies are not supported.
+
+### Example request
 
 ```json
 {
@@ -24,7 +37,9 @@ Authorization: Bearer <token>
 }
 ```
 
-### Response — `201 Created`
+### Response
+
+`201 Created`
 
 ```json
 {
@@ -43,7 +58,18 @@ Authorization: Bearer <token>
 }
 ```
 
-## Get comments
+### Status codes
+
+| Code | Condition |
+|------|-----------|
+| `201` | Comment created |
+| `400` | Validation failure |
+| `401` | Missing or invalid token |
+| `403` | Comments are disabled for the target idea |
+| `404` | Idea or parent comment not found |
+| `429` | Rate limit exceeded |
+
+## List comments
 
 ```http
 GET /ideas/{idea_id}/comments
@@ -51,15 +77,15 @@ GET /ideas/{idea_id}/comments
 
 ### Query parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `page` | integer | Default 1 |
-| `limit` | integer | Default 20, max 100 |
-| `sort` | string | `newest`, `oldest`, `popular` |
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | integer | `1` | Page number |
+| `limit` | integer | `20` | Items per page; maximum 100 |
+| `sort` | string | `newest` | One of `newest`, `oldest`, `popular` |
 
-### Response shape
+### Response
 
-Top-level comments arrive with `replies` nested inline (so you don't need to fetch each thread separately):
+Top-level comments include nested `replies` arrays. Replies are not paginated separately.
 
 ```json
 {
@@ -68,7 +94,7 @@ Top-level comments arrive with `replies` nested inline (so you don't need to fet
     "comments": [
       {
         "id": "cmt_1234567890",
-        "content": "This is such a great idea...",
+        "content": "This is such a great idea.",
         "author": { "username": "stargazer" },
         "idea_id": "idea_9876543210",
         "parent_id": null,
@@ -77,7 +103,7 @@ Top-level comments arrive with `replies` nested inline (so you don't need to fet
         "replies": [
           {
             "id": "cmt_2345678901",
-            "content": "Thanks for the recommendation!",
+            "content": "Thanks for the recommendation.",
             "author": { "username": "giftguru" },
             "parent_id": "cmt_1234567890",
             "stats": { "likes": 3, "replies": 0 },
@@ -102,7 +128,11 @@ POST /comments/{comment_id}/like
 Authorization: Bearer <token>
 ```
 
-Toggles — call once to like, again to unlike.
+This endpoint toggles the like state. A repeated call by the same user removes the like.
+
+### Response
+
+`200 OK`
 
 ```json
 {
@@ -116,15 +146,26 @@ Toggles — call once to like, again to unlike.
 
 ## Rate limits
 
-- New top-level comments: **10 per hour per user**
-- Replies: **20 per hour per user**
+| Action | Limit per user per hour |
+|--------|--------------------------|
+| Top-level comments | 10 |
+| Replies | 20 |
+| Comment likes | 200 |
+
+When a limit is exceeded, the API returns `429 Too Many Requests` with a `Retry-After` header. See [Rate limits](/05-advanced/rate-limits).
 
 ## Error codes
 
-| Code | When you'll see it |
-|------|---------------------|
-| `VALIDATION_ERROR` | Content too short, too long, or empty |
-| `IDEA_NOT_FOUND` | The idea doesn't exist |
-| `COMMENT_NOT_FOUND` | The `parent_id` doesn't resolve to an existing comment |
-| `COMMENTS_DISABLED` | Author has disabled comments on this idea |
-| `RATE_LIMIT_EXCEEDED` | You're posting faster than the limits above |
+| Code | HTTP status | Description |
+|------|-------------|-------------|
+| `VALIDATION_ERROR` | 400 | Content is too short, too long, or empty |
+| `IDEA_NOT_FOUND` | 404 | No idea exists with the specified identifier |
+| `COMMENT_NOT_FOUND` | 404 | The `parent_id` does not reference an existing comment |
+| `COMMENTS_DISABLED` | 403 | Comments are disabled for this idea |
+| `RATE_LIMIT_EXCEEDED` | 429 | Rate limit exceeded for this action |
+
+## Related resources
+
+- [Social interactions](/03-build/social-interactions) — procedural guide.
+- [Rate limits](/05-advanced/rate-limits) — full rate limit specification.
+- [Errors](/04-reference/errors) — complete error code catalog.

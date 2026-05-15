@@ -1,17 +1,17 @@
 # Social interactions
 
-The features that turn a list of ideas into a community: comments, likes, and ratings.
+This guide describes how to use the social features of the API: comments, likes, and ratings.
 
 ## Comments
 
-### Add a comment
+### Post a comment
 
 ```bash
 curl -X POST "https://api.lovinideas.com/v1/ideas/idea_9876543210/comments" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "content": "Great idea — I gave a similar gift last year and it landed perfectly."
+    "content": "Used this idea last year. The recipient appreciated it."
   }'
 ```
 
@@ -19,31 +19,31 @@ To reply to an existing comment, include `parent_id`:
 
 ```json
 {
-  "content": "Where did you order yours from?",
+  "content": "Which retailer did you use?",
   "parent_id": "cmt_1234567890"
 }
 ```
 
-Threads are one level deep — you can reply to a top-level comment, but you can't reply to a reply.
+Comment threads support a single level of nesting. Replies cannot themselves be replied to.
 
-### Read comments
+### List comments
 
 ```bash
 curl "https://api.lovinideas.com/v1/ideas/idea_9876543210/comments?sort=popular&limit=20"
 ```
 
-The response includes nested `replies` arrays inside each top-level comment, so you don't need a second round trip to see the thread.
+The response includes nested `replies` arrays within each top-level comment. A separate request for replies is not required.
 
 ## Likes
 
-Liking is a single endpoint that toggles:
+The like endpoint toggles state. A repeated call by the same user removes the like.
 
 ```bash
 curl -X POST "https://api.lovinideas.com/v1/ideas/idea_9876543210/like" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-The response tells you the new state:
+### Response
 
 ```json
 {
@@ -55,11 +55,11 @@ The response tells you the new state:
 }
 ```
 
-Call it again to unlike. You can also like individual comments via `/comments/{comment_id}/like` — same toggle behaviour.
+Likes can also be applied to comments through `POST /comments/{comment_id}/like`, which exhibits identical toggle behavior.
 
 ## Ratings
 
-Ratings are 1–5 with an optional written review:
+Submit a numeric rating with an optional written review:
 
 ```bash
 curl -X POST "https://api.lovinideas.com/v1/ideas/idea_9876543210/rating" \
@@ -67,24 +67,25 @@ curl -X POST "https://api.lovinideas.com/v1/ideas/idea_9876543210/rating" \
   -H "Content-Type: application/json" \
   -d '{
     "score": 5,
-    "review": "Gave this for our 10th anniversary. She cried."
+    "review": "Used this idea for an anniversary gift. The recipient was very satisfied."
   }'
 ```
 
-One rating per user per idea — sending again updates your previous rating rather than creating a new one.
+Each user may submit one rating per idea. A subsequent rating from the same user updates the existing record.
 
-## Rate limits to keep in mind
+## Rate limits
 
-| Action | Limit |
-|--------|-------|
-| New top-level comments | 10 per hour, per user |
-| Replies | 20 per hour, per user |
-| Likes | 200 per hour, per user |
-| Ratings | 50 per hour, per user |
+| Action | Limit per user per hour |
+|--------|--------------------------|
+| Top-level comments | 10 |
+| Replies | 20 |
+| Likes | 200 |
+| Ratings | 50 |
 
-If you hit a limit you'll get `429 RATE_LIMIT_EXCEEDED` with a `Retry-After` header.
+Exceeding a limit returns `429 Too Many Requests` with a `Retry-After` header. See [Rate limits](/05-advanced/rate-limits).
 
-## What's next
+## Related resources
 
-- [Comments reference](/04-reference/comments) — every field, every error.
-- [Best practices](/05-advanced/best-practices) — how to design retry and rate-limit handling.
+- [Comments](/04-reference/comments) — complete endpoint reference.
+- [Ratings](/04-reference/ratings) — complete endpoint reference.
+- [Best practices](/05-advanced/best-practices) — recommended retry and rate-limit handling.

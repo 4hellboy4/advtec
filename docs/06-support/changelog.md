@@ -1,32 +1,32 @@
 # Changelog
 
-All notable changes to the LovInIdeas API are listed here. We follow [semantic versioning](https://semver.org/) — breaking changes mean a new major version.
+This document records changes to the LovInIdeas API. The API follows [semantic versioning](https://semver.org/). Backward-incompatible changes increment the major version.
 
 ## v1.2.0 — 2026-05-15
 
-**Added**
-- `recipient_type` filter on `GET /ideas` and `/ideas/search`.
-- `DELETE /ideas/{id}/rating` to remove your rating without leaving a new one.
-- `X-RateLimit-*` headers on every response.
+### Added
+- `recipient_type` filter on `GET /ideas` and `GET /ideas/search`.
+- `DELETE /ideas/{id}/rating` endpoint for removing a previously submitted rating.
+- `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers on all responses.
 
-**Changed**
-- Documentation restructured around the CJM journey — content is the same, the navigation is clearer.
+### Changed
+- Documentation restructured according to the Customer Journey Map. Content is preserved; navigation is reorganized.
 
 ## v1.1.0 — 2026-02-04
 
-**Added**
-- Ratings (`POST /ideas/{id}/rating`) — 1–5 score with optional review.
-- Webhooks for `idea.commented`, `idea.liked`, `user.followed_me`.
-- `sort=popular` on `GET /ideas/search`.
+### Added
+- Ratings endpoint (`POST /ideas/{id}/rating`) supporting a 1–5 score with optional written review.
+- Webhook events: `idea.commented`, `idea.liked`, `user.followed_me`.
+- `sort=popular` parameter on `GET /ideas/search`.
 
-**Fixed**
-- `DUPLICATE_TITLE` was firing even when the conflicting idea belonged to another user. Now scoped per-author, as intended.
+### Fixed
+- `DUPLICATE_TITLE` no longer triggers across different users. The uniqueness constraint is now correctly scoped per author.
 
 ## v1.0.1 — 2025-12-12
 
-**Fixed**
-- Pagination `has_next` was occasionally `true` on the final page.
-- `username` validation was case-sensitive in lookup but case-insensitive on register.
+### Fixed
+- `pagination.has_next` no longer returns `true` on the final page in edge cases.
+- Username lookup is now case-insensitive, consistent with registration behavior.
 
 ## v1.0.0 — 2025-11-01
 

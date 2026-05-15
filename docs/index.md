@@ -1,31 +1,50 @@
-# LovInIdeas API
+# LovInIdeas API documentation
 
-A REST API for the LovInIdeas platform — a place where people share gift ideas for birthdays, anniversaries, weddings, and everything in between.
+REST API documentation for the LovInIdeas gift recommendation platform.
 
-This documentation is organized around the path you'll actually walk as a developer: from "what is this?" through your first successful call, into building real features, with a full reference always one click away.
+This documentation is organized according to the Customer Journey Map. Each section represents a stage in the developer's progression from initial discovery to production integration.
 
 ## Where to start
 
-**New here?** → [What LovInIdeas is](/01-discover/overview) and then [Quick Start](/02-get-started/quick-start).
+| If you are... | Start here |
+|---------------|------------|
+| New to the API | [Overview](/01-discover/overview), then [Quick start](/02-get-started/quick-start) |
+| Integrating an existing application | [API reference](/04-reference/authentication) |
+| Investigating an issue | [Troubleshooting](/06-support/troubleshooting), [FAQ](/06-support/faq) |
+| Contributing to the documentation | [Contributing guide](/contributing) |
 
-**Already integrating?** → Jump straight to [API Reference](/04-reference/authentication).
+## Documentation structure
 
-**Stuck?** → [Troubleshooting](/06-support/troubleshooting) and [FAQ](/06-support/faq) usually have it.
-
-## The journey
-
-| Stage | What you'll find |
-|-------|------------------|
-| **1. Discover** | What the API does, who it's for, the core concepts |
-| **2. Get Started** | Quick start, your first request, authentication |
-| **3. Build** | Task-oriented guides — how to ship real features |
-| **4. Reference** | Every endpoint, every field, every error code |
+| Section | Purpose |
+|---------|---------|
+| **1. Discover** | Platform overview, use cases, terminology |
+| **2. Get started** | Quick start, authentication, first request |
+| **3. Build** | Task-oriented guides for implementing features |
+| **4. Reference** | Endpoint-by-endpoint specifications |
 | **5. Advanced** | Rate limits, pagination, webhooks, best practices |
 | **6. Support** | Troubleshooting, FAQ, changelog, contact |
 
-## At a glance
+## API summary
 
-- **Base URL:** `https://api.lovinideas.com/v1`
-- **Auth:** JWT bearer tokens, 24-hour expiry
-- **Rate limits:** 1000 req/hour authenticated, 100 req/hour public
-- **Response format:** JSON, consistent `{ success, data, error, timestamp }` envelope
+| Property | Value |
+|----------|-------|
+| Base URL | `https://api.lovinideas.com/v1` |
+| Authentication | JWT bearer token, 24-hour validity |
+| Request format | JSON |
+| Response format | JSON, with consistent `{ success, data, error, timestamp }` envelope |
+| Authenticated rate limit | 1000 requests / hour / user |
+| Public rate limit | 100 requests / hour / IP address |
+
+## Documentation conventions
+
+This documentation follows the conventions listed below. For the complete style specification, see [Conventions](/conventions).
+
+- Code blocks are runnable. Substitute `YOUR_TOKEN` with a valid authentication token in `curl` examples.
+- Tables document fields, parameters, enumerations, and error codes. Inline prose covers narrative explanations.
+- Internal links use absolute paths beginning with `/`.
+- HTTP status codes accompany every endpoint specification.
+
+## Related resources
+
+- [Contributing](/contributing) — how to add or modify documentation.
+- [Conventions](/conventions) — documentation style and structure standards.

@@ -1,6 +1,17 @@
-# Ratings reference
+# Ratings
 
-Likes and 1–5 ratings on ideas. For higher-level context, see [social interactions](/03-build/social-interactions).
+Endpoints for liking and rating ideas.
+
+For a procedural walkthrough, see [Social interactions](/03-build/social-interactions).
+
+## Endpoint summary
+
+| Method | Path | Authorization |
+|--------|------|---------------|
+| `POST` | `/ideas/{idea_id}/like` | Required |
+| `POST` | `/ideas/{idea_id}/rating` | Required |
+| `GET` | `/ideas/{idea_id}/ratings` | Not required |
+| `DELETE` | `/ideas/{idea_id}/rating` | Required |
 
 ## Like an idea
 
@@ -9,9 +20,11 @@ POST /ideas/{idea_id}/like
 Authorization: Bearer <token>
 ```
 
-Toggles — calling again removes your like.
+This endpoint toggles the like state. A repeated call by the same user removes the like.
 
 ### Response
+
+`200 OK`
 
 ```json
 {
@@ -23,30 +36,44 @@ Toggles — calling again removes your like.
 }
 ```
 
-## Rate an idea
+### Status codes
+
+| Code | Condition |
+|------|-----------|
+| `200` | Like state toggled |
+| `401` | Missing or invalid token |
+| `404` | Idea not found |
+| `429` | Rate limit exceeded |
+
+## Submit a rating
 
 ```http
 POST /ideas/{idea_id}/rating
 Authorization: Bearer <token>
+Content-Type: application/json
 ```
 
 ### Request body
 
-| Field | Type | Required | Description |
+| Field | Type | Required | Constraints |
 |-------|------|----------|-------------|
-| `score` | integer | Yes | 1–5 inclusive |
-| `review` | string | No | Up to 1000 characters |
+| `score` | integer | Yes | Value from 1 to 5 inclusive |
+| `review` | string | No | Maximum 1000 characters |
 
-### Example
+Each user may submit one rating per idea. Submitting a second rating updates the existing record.
+
+### Example request
 
 ```json
 {
   "score": 5,
-  "review": "Gave this for our 10th anniversary. She cried."
+  "review": "Used this idea for an anniversary gift. The recipient was very satisfied."
 }
 ```
 
-### Response — `201 Created`
+### Response
+
+`201 Created`
 
 ```json
 {
@@ -55,7 +82,7 @@ Authorization: Bearer <token>
     "rating": {
       "id": "rat_1234567890",
       "score": 5,
-      "review": "Gave this for our 10th anniversary. She cried.",
+      "review": "Used this idea for an anniversary gift. The recipient was very satisfied.",
       "author": { "username": "stargazer" },
       "idea_id": "idea_9876543210",
       "created_at": "2026-05-15T12:00:00Z"
@@ -68,34 +95,58 @@ Authorization: Bearer <token>
 }
 ```
 
-One rating per user per idea — re-rating updates instead of duplicating.
+### Status codes
 
-## Get ratings for an idea
+| Code | Condition |
+|------|-----------|
+| `201` | Rating created or updated |
+| `400` | Validation failure |
+| `401` | Missing or invalid token |
+| `403` | Authenticated user is the idea author |
+| `404` | Idea not found |
+| `429` | Rate limit exceeded |
+
+## List ratings for an idea
 
 ```http
 GET /ideas/{idea_id}/ratings
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `page` | integer | Default 1 |
-| `limit` | integer | Default 20, max 100 |
-| `sort` | string | `newest`, `highest`, `lowest` |
+### Query parameters
 
-## Remove your rating
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | integer | `1` | Page number |
+| `limit` | integer | `20` | Items per page; maximum 100 |
+| `sort` | string | `newest` | One of `newest`, `highest`, `lowest` |
+
+## Remove a rating
 
 ```http
 DELETE /ideas/{idea_id}/rating
 Authorization: Bearer <token>
 ```
 
-Removes both `score` and `review` you previously submitted on this idea.
+Removes the authenticated user's rating from the specified idea.
+
+### Status codes
+
+| Code | Condition |
+|------|-----------|
+| `204` | Rating removed |
+| `401` | Missing or invalid token |
+| `404` | No rating exists for this user on the specified idea |
 
 ## Error codes
 
-| Code | When you'll see it |
-|------|---------------------|
-| `VALIDATION_ERROR` | `score` outside 1–5, or `review` too long |
-| `IDEA_NOT_FOUND` | No idea with that ID |
-| `SELF_RATING_FORBIDDEN` | You can't rate your own idea |
-| `RATE_LIMIT_EXCEEDED` | More than 50 ratings per hour |
+| Code | HTTP status | Description |
+|------|-------------|-------------|
+| `VALIDATION_ERROR` | 400 | `score` is outside the allowed range, or `review` exceeds the length limit |
+| `IDEA_NOT_FOUND` | 404 | No idea exists with the specified identifier |
+| `SELF_RATING_FORBIDDEN` | 403 | The authenticated user is the idea author |
+| `RATE_LIMIT_EXCEEDED` | 429 | Rate limit exceeded for this action |
+
+## Related resources
+
+- [Social interactions](/03-build/social-interactions) — procedural guide.
+- [Errors](/04-reference/errors) — complete error code catalog.

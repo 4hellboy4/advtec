@@ -1,8 +1,17 @@
 # Pagination
 
-Every list endpoint paginates the same way. Once you know the pattern, it works everywhere.
+All collection endpoints in the API use a consistent page-based pagination scheme. This document specifies the request parameters, response format, and recommended traversal patterns.
 
-## The shape
+## Request parameters
+
+| Parameter | Type | Default | Maximum | Description |
+|-----------|------|---------|---------|-------------|
+| `page` | integer | `1` | — | Page number, starting from 1 |
+| `limit` | integer | `20` | `100` | Number of items per page |
+
+## Response format
+
+Paginated responses include a `pagination` object alongside the data array:
 
 ```json
 {
@@ -18,47 +27,56 @@ Every list endpoint paginates the same way. Once you know the pattern, it works 
 }
 ```
 
-Two parameters control it:
+| Field | Description |
+|-------|-------------|
+| `current_page` | Page number returned in the current response |
+| `per_page` | Number of items returned |
+| `total_items` | Total number of items across all pages |
+| `has_next` | `true` if additional pages exist; `false` otherwise |
 
-- `page` — 1-based page number (default `1`).
-- `limit` — items per page, default `20`, max `100`.
+## Traversal pattern
 
-## Walk every page
-
-The safe pattern is to loop until `has_next` is `false`:
+To retrieve all items, increment `page` until `has_next` is `false`:
 
 ```javascript
 async function fetchAll(endpoint, filters = {}) {
-  const out = [];
+  const results = [];
   let page = 1;
 
   while (true) {
-    const res = await api.request(
-      `${endpoint}?${new URLSearchParams({ ...filters, page, limit: 100 })}`
-    );
-    out.push(...res.data.ideas);
-    if (!res.data.pagination.has_next) break;
+    const params = new URLSearchParams({ ...filters, page, limit: 100 });
+    const response = await api.request(`${endpoint}?${params}`);
+    results.push(...response.data.ideas);
+    if (!response.data.pagination.has_next) {
+      break;
+    }
     page++;
   }
 
-  return out;
+  return results;
 }
 ```
 
-Two reasons to prefer this over counting pages from `total_items / per_page`:
-1. New items can appear between requests; trusting `has_next` is correct, while pre-calculating drifts.
-2. If the API ever switches to cursor pagination, `has_next` keeps working.
+Relying on `has_next` is preferred over calculating the number of pages from `total_items / per_page`:
 
-## Picking a `limit`
+- New items may be inserted between requests, changing the total count.
+- The implementation remains compatible if the API switches to cursor-based pagination.
 
-| You're doing... | Good `limit` |
-|------------------|--------------|
-| Rendering a UI page | 20 (snappy) |
-| Bulk export, throughput matters | 100 (max — fewer round trips) |
-| Live feed, latency matters | 10–20 |
+## Choosing a page size
 
-Bigger `limit` reduces request count but increases latency *per request*. Pick what fits.
+| Use case | Recommended `limit` |
+|----------|---------------------|
+| Interactive UI rendering | 20 |
+| Bulk data retrieval | 100 (maximum) |
+| Low-latency feeds | 10–20 |
 
-## A note on deep pagination
+Larger page sizes reduce the number of round trips but increase per-request latency.
 
-Deep pages (page 500+) get slower. If you find yourself there often, you probably want a filter or search query instead of paginating through everything.
+## Deep pagination
+
+Performance degrades for high page numbers (typically above page 500). For workloads that require deep traversal, prefer filtering or search queries that narrow the result set before pagination.
+
+## Related resources
+
+- [Rate limits](/05-advanced/rate-limits) — request rate constraints to consider during bulk retrieval.
+- [Search and discover](/03-build/search-and-discover) — filtering and query patterns.

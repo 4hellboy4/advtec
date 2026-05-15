@@ -1,47 +1,66 @@
 # Best practices
 
-Things we've watched developers learn the hard way. None of them are rules — they're shortcuts past common mistakes.
+This document collects recommendations for building reliable production clients against the LovInIdeas API. Each recommendation is independent; apply them as appropriate to the integration.
 
-## Treat tokens like passwords
+## Token handling
 
-A JWT is bearer auth: whoever holds it *is* the user. Never log it, never commit it, never paste it into a screenshot. Rotate by re-logging in if you suspect leakage.
+Authentication tokens grant full access to the associated user account. Treat them as credentials:
 
-## Always check `success` before reading `data`
+- Do not log tokens, embed them in source control, or expose them in client-side code.
+- Store tokens in secrets managers, environment variables, or platform-provided secure storage (iOS Keychain, Android Keystore).
+- Rotate tokens by repeating the login procedure if a leak is suspected.
 
-The response envelope is consistent for a reason. Code that reads `response.data.ideas` without first checking `response.success` will crash exactly when the API is having its worst day.
+## Response envelope handling
+
+All API responses share a consistent envelope. Centralize response parsing to enforce checks at a single layer:
 
 ```javascript
-const res = await api.getIdeas();
-if (!res.success) {
-  return handleError(res.error);
+async function callApi(endpoint, options) {
+  const response = await fetch(endpoint, options);
+  const body = await response.json();
+  if (!body.success) {
+    throw new ApiError(body.error.code, body.error.message);
+  }
+  return body.data;
 }
-const ideas = res.data.ideas;
 ```
 
-## Cache lookup data, not user data
+Always evaluate the `success` field before accessing `data`. Code that reads `response.data.ideas` directly will fail when the API returns an error response.
 
-`GET /ideas/{id}` for a popular idea is fine to cache for a few minutes. `GET /users/me/settings` is not — it changes when the user changes it, and a stale cache will confuse them.
+## Server-side filtering
 
-## Use filters server-side, not client-side
+Apply filters at the API level rather than fetching data and filtering on the client. Filtering 5000 items locally to retrieve 200 wastes bandwidth and quota. Use the documented query parameters for the relevant endpoint.
 
-If you're fetching 5000 ideas and filtering for `category=electronics` in your code, you're paying for 5000 items when you wanted 200. Push the filter into the query string.
+## Proactive rate-limit handling
 
-## Honour rate-limit headers proactively
+Monitor the `X-RateLimit-Remaining` header and reduce request rate when the remaining quota approaches the limit. Waiting for `429` responses to throttle activity results in user-visible errors.
 
-Don't wait for `429`. If `X-RateLimit-Remaining` is below 10% of your limit, slow down voluntarily. Your users will never see an error.
+For implementation details, see [Rate limits](/05-advanced/rate-limits).
 
-## Make your retry policy boring
+## Retry strategy
 
-Bounded retries with exponential backoff and a jitter component. Three retries max. Always respect `Retry-After`. Never retry `4xx` errors that aren't `429` — they won't get better.
+- Retry only on `429 Too Many Requests` and transient `5xx` errors.
+- Use exponential backoff with jitter.
+- Limit the number of retries (typically three).
+- Always respect the `Retry-After` header when present.
+- Do not retry `4xx` errors other than `429`.
 
-## Webhooks must be idempotent
+## API versioning
 
-The same event can be delivered twice. Use the `event` + `delivered_at` + the underlying object's ID as a dedupe key.
+Always include the version segment (`/v1`) in the base URL. Future versions will be published under new segments (`/v2`, and so on). Omitting the version may result in unintended migration when defaults change.
 
-## Pin to `v1`
+## Webhook idempotency
 
-The base URL has a version segment for a reason. Always include `/v1` explicitly — don't strip it "because it works without". When we ship `/v2`, your code will keep working.
+The same webhook event may be delivered more than once. Identify deliveries using a combination of the `event` name, `delivered_at` timestamp, and the relevant object identifier in `data`. Maintain a deduplication store to ignore repeated deliveries.
 
-## Build for the response envelope
+For delivery semantics, see [Webhooks](/05-advanced/webhooks).
 
-Centralise response parsing. One function that takes a raw response, checks `success`, surfaces `error` consistently, and returns `data`. Every call site stays clean.
+## Caching
+
+Cache static reference data (idea details for popular ideas, public profile information) for short periods to reduce request volume. Do not cache user-specific data such as settings or notification preferences, which must reflect the authoritative state at all times.
+
+## Related resources
+
+- [Rate limits](/05-advanced/rate-limits) — quotas and retry guidance.
+- [Pagination](/05-advanced/pagination) — efficient traversal patterns.
+- [Webhooks](/05-advanced/webhooks) — event-driven integration.

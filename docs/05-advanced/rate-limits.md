@@ -1,61 +1,75 @@
 # Rate limits
 
-The API enforces rate limits so one noisy client doesn't ruin the day for everyone else. They're generous for normal use and easy to handle gracefully.
+The API enforces per-user and per-IP rate limits to ensure fair usage and protect service availability. This document specifies the limits, the response format when a limit is exceeded, and a recommended retry strategy.
 
-## The numbers
+## Rate limit values
 
-| Bucket | Limit |
-|--------|-------|
-| Authenticated requests, overall | 1000 / hour |
-| Public (unauthenticated) requests | 100 / hour |
-| New comments | 10 / hour |
-| Comment replies | 20 / hour |
-| Likes | 200 / hour |
-| Ratings | 50 / hour |
+| Action | Limit | Scope |
+|--------|-------|-------|
+| Authenticated requests, overall | 1000 / hour | Per user |
+| Public (unauthenticated) requests | 100 / hour | Per IP address |
+| Top-level comments | 10 / hour | Per user |
+| Comment replies | 20 / hour | Per user |
+| Likes (ideas and comments) | 200 / hour | Per user |
+| Ratings | 50 / hour | Per user |
 
-Limits are per **user** for authenticated calls, per **IP** for unauthenticated.
+## Quota headers
 
-## How to know where you stand
+Every API response includes the following headers:
 
-Every response carries three headers:
+| Header | Description |
+|--------|-------------|
+| `X-RateLimit-Limit` | Total quota allocated for the current window |
+| `X-RateLimit-Remaining` | Requests remaining in the current window |
+| `X-RateLimit-Reset` | Unix timestamp at which the quota resets |
 
-| Header | Meaning |
-|--------|---------|
-| `X-RateLimit-Limit` | Total quota for the current window |
-| `X-RateLimit-Remaining` | What's left |
-| `X-RateLimit-Reset` | Unix timestamp when the window resets |
+Clients should monitor these headers and adjust their request rate proactively, rather than relying on `429` responses for flow control.
 
-Watch these proactively — don't wait for a `429` to back off.
+## Exceeded-limit response
 
-## When you hit the limit
+When a rate limit is exceeded, the API returns:
 
-The response is `429 Too Many Requests` with:
+- HTTP status: `429 Too Many Requests`
+- `Retry-After` header: number of seconds to wait before retrying
 
 ```json
 {
   "success": false,
   "error": {
     "code": "RATE_LIMIT_EXCEEDED",
-    "message": "Slow down, please."
-  }
+    "message": "Rate limit exceeded for this action."
+  },
+  "timestamp": "2026-05-15T12:00:00Z"
 }
 ```
 
-There's also a `Retry-After` header with the number of seconds to wait. Honour it. Don't retry sooner; you'll just delay your reset further.
+Clients must wait at least the duration specified in `Retry-After` before retrying. Earlier retries may delay the quota reset.
 
-## A reasonable retry policy
+## Recommended retry implementation
+
+The following implementation respects `Retry-After` and limits the number of retries:
 
 ```javascript
-async function callWithBackoff(fn, attempt = 0) {
-  const res = await fn();
-  if (res.status !== 429) return res;
-
-  const retryAfter = Number(res.headers.get('Retry-After') ?? 1);
-  await new Promise(r => setTimeout(r, retryAfter * 1000));
-
-  if (attempt >= 3) throw new Error('Gave up after 3 retries');
-  return callWithBackoff(fn, attempt + 1);
+async function callWithBackoff(fn, maxAttempts = 3) {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const response = await fn();
+    if (response.status !== 429) {
+      return response;
+    }
+    const retryAfter = Number(response.headers.get('Retry-After') ?? 1);
+    await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+  }
+  throw new Error('Maximum retry attempts exceeded');
 }
 ```
 
-Two principles: respect `Retry-After`, and give up after a few tries instead of looping forever.
+The following principles apply to any retry implementation:
+
+- Always respect the `Retry-After` value.
+- Limit the number of retries to prevent infinite loops.
+- Do not retry HTTP `4xx` responses other than `429`.
+
+## Related resources
+
+- [Best practices](/05-advanced/best-practices) — broader recommendations for production clients.
+- [Errors](/04-reference/errors) — complete error code catalog.

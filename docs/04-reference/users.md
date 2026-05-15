@@ -1,6 +1,17 @@
-# Users reference
+# Users
 
-Read and update user profiles and settings.
+Endpoints for retrieving and modifying user profiles, settings, and follow relationships.
+
+## Endpoint summary
+
+| Method | Path | Authorization |
+|--------|------|---------------|
+| `GET` | `/users/{user_id}/profile` | Not required |
+| `GET` | `/users/by-username/{username}` | Not required |
+| `PATCH` | `/users/me/profile` | Required |
+| `GET` | `/users/me/settings` | Required |
+| `PATCH` | `/users/me/settings` | Required |
+| `POST` | `/users/{user_id}/follow` | Required |
 
 ## Get a user profile
 
@@ -8,9 +19,11 @@ Read and update user profiles and settings.
 GET /users/{user_id}/profile
 ```
 
-Public endpoint — no auth needed.
+Returns the public profile of the specified user.
 
 ### Response
+
+`200 OK`
 
 ```json
 {
@@ -20,7 +33,7 @@ Public endpoint — no auth needed.
       "id": "usr_1234567890",
       "username": "giftguru",
       "full_name": "John Doe",
-      "bio": "I just like helping people find better presents.",
+      "bio": "Recommends gifts for a variety of occasions.",
       "avatar_url": "https://cdn.lovinideas.com/avatars/usr_1234567890.jpg",
       "stats": {
         "ideas_posted": 42,
@@ -34,50 +47,76 @@ Public endpoint — no auth needed.
 }
 ```
 
-You can also use `GET /users/by-username/{username}` if you only have the handle.
+### Status codes
 
-## Update your profile
+| Code | Condition |
+|------|-----------|
+| `200` | Profile returned |
+| `403` | Profile is not visible to the requester |
+| `404` | User not found |
+
+## Look up a user by username
+
+```http
+GET /users/by-username/{username}
+```
+
+Returns the same response shape as `GET /users/{user_id}/profile`.
+
+## Update the authenticated user's profile
 
 ```http
 PATCH /users/me/profile
 Authorization: Bearer <token>
+Content-Type: application/json
 ```
 
 ### Request body
 
-| Field | Type | Description |
+| Field | Type | Constraints |
 |-------|------|-------------|
-| `full_name` | string | 1–100 chars |
-| `bio` | string | Up to 280 chars |
-| `avatar_url` | string | URL, image only |
+| `full_name` | string | 1–100 characters |
+| `bio` | string | 0–280 characters |
+| `avatar_url` | string | Valid image URL |
 
-Send only the fields you want to change.
+Only the fields provided in the request body are updated.
 
-## Get your settings
+### Status codes
+
+| Code | Condition |
+|------|-----------|
+| `200` | Profile updated |
+| `400` | Validation failure |
+| `401` | Missing or invalid token |
+
+## Get the authenticated user's settings
 
 ```http
 GET /users/me/settings
 Authorization: Bearer <token>
 ```
 
-Returns notification preferences, default filters, privacy options.
+Returns notification preferences, default filters, and privacy options for the authenticated user.
 
-## Update your settings
+## Update the authenticated user's settings
 
 ```http
 PATCH /users/me/settings
 Authorization: Bearer <token>
+Content-Type: application/json
 ```
 
-### Request body (all fields optional)
+### Request body
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `email_notifications` | boolean | Master toggle for email |
-| `notify_on_comment` | boolean | Email when someone comments on your idea |
-| `notify_on_like` | boolean | Email when someone likes your idea |
-| `default_currency` | string | ISO 4217 code (e.g. `USD`, `EUR`, `RUB`) |
-| `profile_visibility` | string | `public`, `followers_only`, `private` |
+| `email_notifications` | boolean | Master toggle for email notifications |
+| `notify_on_comment` | boolean | Email notification when a comment is posted on an authored idea |
+| `notify_on_like` | boolean | Email notification when an authored idea is liked |
+| `default_currency` | string | ISO 4217 currency code (for example, `USD`, `EUR`, `RUB`) |
+| `profile_visibility` | string | One of `public`, `followers_only`, `private` |
+
+All fields are optional. Only the fields provided in the request body are updated.
 
 ## Follow a user
 
@@ -86,13 +125,40 @@ POST /users/{user_id}/follow
 Authorization: Bearer <token>
 ```
 
-Toggles — call again to unfollow. Response includes the new state and follower count.
+This endpoint toggles the follow state. A repeated call by the same user removes the follow relationship.
+
+### Response
+
+`200 OK`
+
+```json
+{
+  "success": true,
+  "data": {
+    "following": true,
+    "follower_count": 90
+  }
+}
+```
+
+### Status codes
+
+| Code | Condition |
+|------|-----------|
+| `200` | Follow state toggled |
+| `401` | Missing or invalid token |
+| `403` | The authenticated user is the target user |
+| `404` | Target user not found |
 
 ## Error codes
 
-| Code | When you'll see it |
-|------|---------------------|
-| `USER_NOT_FOUND` | No user with that ID or username |
-| `VALIDATION_ERROR` | A field failed validation |
-| `PROFILE_PRIVATE` | The profile exists but isn't viewable by you |
-| `SELF_FOLLOW_FORBIDDEN` | You can't follow yourself |
+| Code | HTTP status | Description |
+|------|-------------|-------------|
+| `VALIDATION_ERROR` | 400 | One or more fields failed validation |
+| `USER_NOT_FOUND` | 404 | No user exists with the specified identifier or username |
+| `PROFILE_PRIVATE` | 403 | Profile is not visible to the requester |
+| `SELF_FOLLOW_FORBIDDEN` | 403 | A user cannot follow their own account |
+
+## Related resources
+
+- [Errors](/04-reference/errors) — complete error code catalog.

@@ -1,23 +1,35 @@
-# Authentication reference
+# Authentication
 
-Complete reference for registration, login, and JWT handling. For a walkthrough, see [authentication setup](/02-get-started/authentication-setup).
+Endpoints for user registration, login, and JSON Web Token (JWT) handling.
+
+For a procedural walkthrough, see [Authentication setup](/02-get-started/authentication-setup).
+
+## Endpoint summary
+
+| Method | Path | Authorization |
+|--------|------|---------------|
+| `POST` | `/auth/register` | Not required |
+| `POST` | `/auth/login` | Not required |
 
 ## Register a user
 
+Creates a new user account and returns an authentication token.
+
 ```http
 POST /auth/register
+Content-Type: application/json
 ```
 
 ### Request body
 
-| Field | Type | Required | Description |
+| Field | Type | Required | Constraints |
 |-------|------|----------|-------------|
-| `email` | string | Yes | Valid email address |
-| `password` | string | Yes | At least 8 characters |
-| `username` | string | Yes | 3–20 characters, unique |
-| `full_name` | string | Yes | Display name |
+| `email` | string | Yes | Valid email address; unique across all accounts |
+| `password` | string | Yes | Minimum 8 characters |
+| `username` | string | Yes | 3–20 characters; unique across all accounts |
+| `full_name` | string | Yes | 1–100 characters |
 
-### Example
+### Example request
 
 ```json
 {
@@ -28,7 +40,9 @@ POST /auth/register
 }
 ```
 
-### Response — `201 Created`
+### Response
+
+`201 Created`
 
 ```json
 {
@@ -42,45 +56,73 @@ POST /auth/register
     },
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "expires_in": 86400
-  }
+  },
+  "timestamp": "2026-05-15T12:00:00Z"
 }
 ```
 
+### Status codes
+
+| Code | Condition |
+|------|-----------|
+| `201` | Account created |
+| `400` | Validation failure |
+| `409` | Email or username already registered |
+
 ## Log in
+
+Authenticates an existing user and returns a new token.
 
 ```http
 POST /auth/login
+Content-Type: application/json
 ```
 
 ### Request body
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `email` | string | Yes | Registered email |
+| `email` | string | Yes | Registered email address |
 | `password` | string | Yes | Account password |
 
-### Response — `200 OK`
+### Response
 
-Same shape as register, minus `full_name` in the user object (already known to the client).
+`200 OK`
 
-## Using the token
+Response shape matches `POST /auth/register`, excluding the `full_name` field in the `user` object.
 
-Send it on every authenticated request:
+### Status codes
+
+| Code | Condition |
+|------|-----------|
+| `200` | Authentication successful |
+| `400` | Validation failure |
+| `401` | Invalid credentials |
+| `423` | Account locked due to repeated failed attempts |
+
+## Token usage
+
+Include the token in the `Authorization` header of every authenticated request:
 
 ```http
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-Tokens expire in **86400 seconds** (24 hours). There is no refresh endpoint — log in again to get a new one.
+Tokens are valid for 86400 seconds (24 hours). The API does not provide a refresh endpoint. To obtain a new token, repeat the login procedure.
 
 ## Error codes
 
-| Code | When you'll see it |
-|------|---------------------|
-| `VALIDATION_ERROR` | Email malformed, password too short, username out of range |
-| `EMAIL_EXISTS` | The email is already registered |
-| `USERNAME_TAKEN` | Someone else has that username |
-| `INVALID_CREDENTIALS` | Wrong email or password (intentionally vague) |
-| `ACCOUNT_LOCKED` | Too many failed attempts — try again in 15 minutes |
-| `TOKEN_EXPIRED` | The JWT has expired; log in again |
-| `TOKEN_INVALID` | Token is malformed or has been revoked |
+| Code | HTTP status | Description |
+|------|-------------|-------------|
+| `VALIDATION_ERROR` | 400 | One or more fields failed validation |
+| `EMAIL_EXISTS` | 409 | Email address is already registered |
+| `USERNAME_TAKEN` | 409 | Username is already in use |
+| `INVALID_CREDENTIALS` | 401 | Email or password is incorrect |
+| `ACCOUNT_LOCKED` | 423 | Account is locked due to repeated failed attempts |
+| `TOKEN_EXPIRED` | 401 | Authentication token has expired |
+| `TOKEN_INVALID` | 401 | Authentication token is malformed or revoked |
+
+## Related resources
+
+- [Authentication setup](/02-get-started/authentication-setup) — procedural guide.
+- [Errors](/04-reference/errors) — complete error code catalog.

@@ -10,7 +10,8 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Get Started', link: '/02-get-started/quick-start' },
       { text: 'Reference', link: '/04-reference/authentication' },
-      { text: 'Support', link: '/06-support/faq' }
+      { text: 'Support', link: '/06-support/faq' },
+      { text: 'Contributing', link: '/contributing' }
     ],
 
     sidebar: [
@@ -71,6 +72,14 @@ export default defineConfig({
           { text: 'FAQ', link: '/06-support/faq' },
           { text: 'Changelog', link: '/06-support/changelog' },
           { text: 'Contact', link: '/06-support/contact' }
+        ]
+      },
+      {
+        text: 'Contributing',
+        collapsed: true,
+        items: [
+          { text: 'Contributing guide', link: '/contributing' },
+          { text: 'Documentation conventions', link: '/conventions' }
         ]
       }
     ],
